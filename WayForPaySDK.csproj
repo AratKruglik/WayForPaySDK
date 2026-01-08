@@ -1,9 +1,34 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net10.0</TargetFramework>
+        <TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <LangVersion>latest</LangVersion>
+
+        <!-- Package metadata -->
+        <PackageId>WayForPaySDK</PackageId>
+        <Version>1.0.0</Version>
+        <Authors>WayForPaySDK Contributors</Authors>
+        <Description>A .NET SDK for WayForPay payment gateway integration</Description>
+        <PackageTags>wayforpay;payment;sdk;ukraine</PackageTags>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <RepositoryUrl>https://github.com/AratKruglik/WayForPaySDK</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+
+        <!-- Build settings -->
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+        <NoWarn>$(NoWarn);CS1591</NoWarn>
     </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="9.0.0" />
+        <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="9.0.0" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.0" />
+        <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.0" />
+        <PackageReference Include="Microsoft.Extensions.Options" Version="9.0.0" />
+        <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="9.0.0" />
+    </ItemGroup>
 
 </Project>
