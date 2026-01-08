@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using WayForPaySDK.Domain;
 using WayForPaySDK.Domain.Enums;
+using WayForPaySDK.Handlers;
 using WayForPaySDK.Requests;
 using WayForPaySDK.Responses;
 
@@ -54,6 +55,10 @@ namespace WayForPaySDK.Serialization;
 [JsonSerializable(typeof(Complete3DSResponse))]
 [JsonSerializable(typeof(VerifyResponse))]
 [JsonSerializable(typeof(TransactionListResponse))]
+// Webhook types
+[JsonSerializable(typeof(WebhookPayload))]
+[JsonSerializable(typeof(WebhookResponse))]
+[JsonSerializable(typeof(WebhookStatus))]
 // Collections
 [JsonSerializable(typeof(Dictionary<string, object>))]
 [JsonSerializable(typeof(Dictionary<string, string>))]
