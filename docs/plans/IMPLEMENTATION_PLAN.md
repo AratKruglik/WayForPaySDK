@@ -36,7 +36,19 @@ WayForPaySDK - це .NET бібліотека для інтеграції з п�
 | User Stories | 100 |
 | Story Points | ~233 SP |
 | Орієнтовна тривалість | 10-12 тижнів |
-| Target Frameworks | .NET 6.0, 8.0, 9.0, 10.0 |
+| Target Frameworks | .NET 8.0, 9.0, 10.0 |
+
+### 1.3 Поточний статус реалізації
+
+| Phase | Epic | Статус | Дата |
+|-------|------|--------|------|
+| Phase 1 | Epic-01: Core Infrastructure | ✅ ЗАВЕРШЕНО | 2026-01-08 |
+| Phase 2 | Epic-02: Payment Operations | 🔄 В ПРОЦЕСІ (~60%) | 2026-01-08 |
+| Phase 3 | Epic-03 + Epic-04 | ⏳ Очікує | - |
+| Phase 4 | Epic-05: Webhook Integration | ⏳ Очікує | - |
+| Phase 5 | Epic-06: Builders & Polish | ⏳ Очікує | - |
+
+> **Примітка:** .NET 6.0 видалено з Target Frameworks через несумісність з `required` keyword та JSON source generation для init-only properties.
 
 ### 1.2 Ключові дати
 
@@ -63,13 +75,13 @@ WayForPaySDK - це .NET бібліотека для інтеграції з п�
 
 ## 2. Фази реалізації
 
-### Phase 1: Foundation (Тижні 1-2)
+### Phase 1: Foundation (Тижні 1-2) ✅ ЗАВЕРШЕНО
 
-**Epic-01: Core Infrastructure**
+**Epic-01: Core Infrastructure** — *Реалізовано 2026-01-08*
 
 ```
 ┌────────────────────────────────────────────────────────────────┐
-│                        PHASE 1: FOUNDATION                      │
+│                   PHASE 1: FOUNDATION ✅ DONE                   │
 │                         Epic-01 (58 SP)                         │
 ├────────────────────────────────────────────────────────────────┤
 │                                                                 │
@@ -114,23 +126,34 @@ WayForPaySDK - це .NET бібліотека для інтеграції з п�
 └────────────────────────────────────────────────────────────────┘
 ```
 
-**Deliverables Phase 1:**
-- Проект з multi-target configuration
-- Всі domain models
-- Signature generation/validation
-- DI infrastructure
-- Exception hierarchy
-- JSON serialization
+**Deliverables Phase 1:** ✅ Всі доставлені
+- ✅ Проект з multi-target configuration (net8.0, net9.0, net10.0)
+- ✅ Всі domain models (Card, CardToken, Client, Product, Transaction, Reason, Regular)
+- ✅ Signature generation/validation (HMAC-MD5 з timing-safe порівнянням)
+- ✅ DI infrastructure (AddWayForPay extension methods)
+- ✅ Exception hierarchy (5 типів винятків)
+- ✅ JSON serialization (source-generated context)
+
+**Реалізовані файли Phase 1 (27 файлів):**
+- `Domain/Enums/*.cs` (7 файлів) - TransactionStatus, PaymentSystem, Currency, Language, MerchantTransactionType, RegularBehavior, RegularMode
+- `Domain/*.cs` (7 файлів) - Card, CardToken, Client, Product, Reason, Regular, Transaction
+- `Constants/ReasonCodes.cs` - 50+ констант кодів причин
+- `Exceptions/*.cs` (5 файлів) - WayForPayException, ApiException, SignatureException, InvalidFieldException, JsonParseException
+- `Options/WayForPayOptions.cs` - конфігурація SDK
+- `Crypto/*.cs` (2 файли) - ISignatureGenerator, SignatureGenerator
+- `Serialization/WayForPayJsonContext.cs` - JSON source generator
+- `Http/*.cs` (2 файли) - IWayForPayHttpClient, WayForPayHttpClient
+- `Extensions/ServiceCollectionExtensions.cs` - AddWayForPay()
 
 ---
 
-### Phase 2: Core Operations (Тижні 3-4)
+### Phase 2: Core Operations (Тижні 3-4) 🔄 В ПРОЦЕСІ
 
-**Epic-02: Payment Operations**
+**Epic-02: Payment Operations** — *Розпочато 2026-01-08*
 
 ```
 ┌────────────────────────────────────────────────────────────────┐
-│                     PHASE 2: CORE OPERATIONS                    │
+│                 PHASE 2: CORE OPERATIONS 🔄 WIP                 │
 │                         Epic-02 (50 SP)                         │
 ├────────────────────────────────────────────────────────────────┤
 │                                                                 │
@@ -166,9 +189,30 @@ WayForPaySDK - це .NET бібліотека для інтеграції з п�
 ```
 
 **Deliverables Phase 2:**
-- Повністю функціональний IWayForPayClient
-- CHARGE, REFUND, CHECK_STATUS, SETTLE операції
-- Error handling та retry support
+- 🔄 Повністю функціональний IWayForPayClient
+- ✅ CHARGE операція (з карткою та токеном)
+- ✅ REFUND операція
+- ✅ CHECK_STATUS операція
+- ⏳ SETTLE операція
+- ⏳ Error handling та retry support
+
+**Реалізовані файли Phase 2 (10 файлів):**
+- `Requests/ApiRequest.cs` - базовий клас запитів ✅
+- `Responses/ApiResponse.cs` - базовий клас відповідей ✅
+- `Requests/ChargeRequest.cs` - запит на списання ✅
+- `Responses/ChargeResponse.cs` - відповідь на списання (з 3DS) ✅
+- `Requests/RefundRequest.cs` - запит на повернення ✅
+- `Responses/RefundResponse.cs` - відповідь на повернення ✅
+- `Requests/CheckStatusRequest.cs` - запит на статус ✅
+- `Responses/CheckStatusResponse.cs` - відповідь на статус ✅
+- `Services/IWayForPayClient.cs` - головний інтерфейс SDK ✅
+- `Services/WayForPayClient.cs` - реалізація з верифікацією підпису ✅
+
+**Залишилось реалізувати:**
+- `Requests/SettleRequest.cs` - підтвердження авторизації
+- `Responses/SettleResponse.cs` - відповідь на підтвердження
+- Error to Exception Mapping (US-045)
+- Transient Error Detection (US-046)
 
 ---
 
@@ -1097,110 +1141,115 @@ PROB    ├───────────┼───────────
 
 ### Appendix A: User Story Index
 
-| US | Epic | Назва | SP |
-|----|------|-------|-----|
-| US-001 | Epic-01 | Project Setup | 2 |
-| US-002 | Epic-01 | Domain Enums | 2 |
-| US-003 | Epic-01 | Card Model | 1 |
-| US-004 | Epic-01 | CardToken Model | 1 |
-| US-005 | Epic-01 | Client Model | 2 |
-| US-006 | Epic-01 | Product Model | 1 |
-| US-007 | Epic-01 | Transaction Model | 3 |
-| US-008 | Epic-01 | Reason Model | 2 |
-| US-009 | Epic-01 | RegularPaymentSettings | 2 |
-| US-010 | Epic-01 | ISignatureGenerator | 2 |
-| US-011 | Epic-01 | HmacMd5SignatureGenerator | 3 |
-| US-012 | Epic-01 | Timing-Safe Validation | 2 |
-| US-013 | Epic-01 | WayForPayOptions | 2 |
-| US-014 | Epic-01 | Options Validator | 2 |
-| US-015 | Epic-01 | HTTP Client | 3 |
-| US-016 | Epic-01 | Connection Pooling | 2 |
-| US-017 | Epic-01 | AddWayForPay (Action) | 3 |
-| US-018 | Epic-01 | AddWayForPay (IConfig) | 2 |
-| US-019 | Epic-01 | IHttpClientBuilder | 2 |
-| US-020 | Epic-01 | WayForPayException | 2 |
-| US-021 | Epic-01 | ApiException | 2 |
-| US-022 | Epic-01 | SignatureException | 2 |
-| US-023 | Epic-01 | ValidationException | 2 |
-| US-024 | Epic-01 | NetworkException | 2 |
-| US-025 | Epic-01 | ReasonCodes | 2 |
-| US-026 | Epic-01 | JSON Context | 3 |
-| US-027 | Epic-01 | UnixTimestampConverter | 2 |
-| US-028 | Epic-01 | DecimalConverter | 2 |
-| US-029 | Epic-02 | IWayForPayClient | 3 |
-| US-030 | Epic-02 | ChargeRequest | 3 |
-| US-031 | Epic-02 | ChargeResponse | 3 |
-| US-032 | Epic-02 | ChargeAsync | 5 |
-| US-033 | Epic-02 | Charge Signature | 3 |
-| US-034 | Epic-02 | Response Validation | 3 |
-| US-035 | Epic-02 | RefundRequest | 2 |
-| US-036 | Epic-02 | RefundResponse | 2 |
-| US-037 | Epic-02 | RefundAsync | 3 |
-| US-038 | Epic-02 | CheckStatusRequest | 1 |
-| US-039 | Epic-02 | CheckStatusResponse | 2 |
-| US-040 | Epic-02 | CheckStatusAsync | 3 |
-| US-041 | Epic-02 | SettleRequest | 2 |
-| US-042 | Epic-02 | SettleResponse | 2 |
-| US-043 | Epic-02 | SettleAsync | 3 |
-| US-044 | Epic-02 | WayForPayClient | 5 |
-| US-045 | Epic-02 | Error Mapping | 3 |
-| US-046 | Epic-02 | Transient Detection | 2 |
-| US-047 | Epic-03 | Complete3DsRequest | 2 |
-| US-048 | Epic-03 | Complete3DsResponse | 2 |
-| US-049 | Epic-03 | Complete3DsAsync | 3 |
-| US-050 | Epic-03 | 3DS Detection | 2 |
-| US-051 | Epic-03 | VerifyRequest | 2 |
-| US-052 | Epic-03 | VerifyResponse | 2 |
-| US-053 | Epic-03 | VerifyAsync | 3 |
-| US-054 | Epic-03 | TransactionListRequest | 2 |
-| US-055 | Epic-03 | TransactionListResponse | 2 |
-| US-056 | Epic-03 | GetTransactionListAsync | 3 |
-| US-057 | Epic-04 | InvoiceRequest | 3 |
-| US-058 | Epic-04 | InvoiceResponse | 2 |
-| US-059 | Epic-04 | CreateInvoiceAsync | 3 |
-| US-060 | Epic-04 | PurchaseRequest | 3 |
-| US-061 | Epic-04 | PurchaseFormData | 2 |
-| US-062 | Epic-04 | CreatePurchaseForm | 3 |
-| US-063 | Epic-04 | HTML Generation | 2 |
-| US-064 | Epic-04 | PaymentSystem Conversion | 2 |
-| US-065 | Epic-04 | Language Enum | 1 |
-| US-066 | Epic-04 | Regular Payments | 3 |
-| US-067 | Epic-05 | IWebhookHandler | 2 |
-| US-068 | Epic-05 | WebhookPayload | 3 |
-| US-069 | Epic-05 | WebhookResponse | 2 |
-| US-070 | Epic-05 | WebhookStatus Enum | 1 |
-| US-071 | Epic-05 | ParseAsync (Stream) | 3 |
-| US-072 | Epic-05 | Parse (string) | 2 |
-| US-073 | Epic-05 | Signature Validation | 3 |
-| US-074 | Epic-05 | CreateResponse | 3 |
-| US-075 | Epic-05 | SerializeResponse | 2 |
-| US-076 | Epic-05 | ASP.NET ParseAsync | 2 |
-| US-077 | Epic-05 | ToActionResult | 2 |
-| US-078 | Epic-05 | HandleAsync | 3 |
-| US-079 | Epic-05 | Helper Properties | 1 |
-| US-080 | Epic-06 | ChargeBuilder Create | 2 |
-| US-081 | Epic-06 | Order Methods | 2 |
-| US-082 | Epic-06 | Product Methods | 2 |
-| US-083 | Epic-06 | Payment Methods | 2 |
-| US-084 | Epic-06 | Client Method | 1 |
-| US-085 | Epic-06 | Callback Methods | 1 |
-| US-086 | Epic-06 | Transaction Type | 2 |
-| US-087 | Epic-06 | 3DS Methods | 1 |
-| US-088 | Epic-06 | Build Validation | 3 |
-| US-089 | Epic-06 | RefundBuilder | 3 |
-| US-090 | Epic-06 | InvoiceBuilder | 3 |
-| US-091 | Epic-06 | PurchaseFormBuilder | 3 |
-| US-092 | Epic-06 | CheckBuilder | 2 |
-| US-093 | Epic-06 | Polly Retry | 3 |
-| US-094 | Epic-06 | Polly Circuit Breaker | 3 |
-| US-095 | Epic-06 | AddWayForPayWithPolly | 2 |
-| US-096 | Epic-06 | Logging Handler | 3 |
-| US-097 | Epic-06 | XML Documentation | 5 |
-| US-098 | Epic-06 | README.md | 3 |
-| US-099 | Epic-06 | API Reference | 3 |
-| US-100 | Epic-06 | Migration Guide | 2 |
+| US | Epic | Назва | SP | Статус |
+|----|------|-------|-----|--------|
+| US-001 | Epic-01 | Project Setup | 2 | ✅ |
+| US-002 | Epic-01 | Domain Enums | 2 | ✅ |
+| US-003 | Epic-01 | Card Model | 1 | ✅ |
+| US-004 | Epic-01 | CardToken Model | 1 | ✅ |
+| US-005 | Epic-01 | Client Model | 2 | ✅ |
+| US-006 | Epic-01 | Product Model | 1 | ✅ |
+| US-007 | Epic-01 | Transaction Model | 3 | ✅ |
+| US-008 | Epic-01 | Reason Model | 2 | ✅ |
+| US-009 | Epic-01 | RegularPaymentSettings | 2 | ✅ |
+| US-010 | Epic-01 | ISignatureGenerator | 2 | ✅ |
+| US-011 | Epic-01 | HmacMd5SignatureGenerator | 3 | ✅ |
+| US-012 | Epic-01 | Timing-Safe Validation | 2 | ✅ |
+| US-013 | Epic-01 | WayForPayOptions | 2 | ✅ |
+| US-014 | Epic-01 | Options Validator | 2 | ✅ |
+| US-015 | Epic-01 | HTTP Client | 3 | ✅ |
+| US-016 | Epic-01 | Connection Pooling | 2 | ✅ |
+| US-017 | Epic-01 | AddWayForPay (Action) | 3 | ✅ |
+| US-018 | Epic-01 | AddWayForPay (IConfig) | 2 | ✅ |
+| US-019 | Epic-01 | IHttpClientBuilder | 2 | ✅ |
+| US-020 | Epic-01 | WayForPayException | 2 | ✅ |
+| US-021 | Epic-01 | ApiException | 2 | ✅ |
+| US-022 | Epic-01 | SignatureException | 2 | ✅ |
+| US-023 | Epic-01 | ValidationException | 2 | ✅ |
+| US-024 | Epic-01 | NetworkException | 2 | ✅ |
+| US-025 | Epic-01 | ReasonCodes | 2 | ✅ |
+| US-026 | Epic-01 | JSON Context | 3 | ✅ |
+| US-027 | Epic-01 | UnixTimestampConverter | 2 | ✅ |
+| US-028 | Epic-01 | DecimalConverter | 2 | ✅ |
+| US-029 | Epic-02 | IWayForPayClient | 3 | ✅ |
+| US-030 | Epic-02 | ChargeRequest | 3 | ✅ |
+| US-031 | Epic-02 | ChargeResponse | 3 | ✅ |
+| US-032 | Epic-02 | ChargeAsync | 5 | ✅ |
+| US-033 | Epic-02 | Charge Signature | 3 | ✅ |
+| US-034 | Epic-02 | Response Validation | 3 | ✅ |
+| US-035 | Epic-02 | RefundRequest | 2 | ✅ |
+| US-036 | Epic-02 | RefundResponse | 2 | ✅ |
+| US-037 | Epic-02 | RefundAsync | 3 | ✅ |
+| US-038 | Epic-02 | CheckStatusRequest | 1 | ✅ |
+| US-039 | Epic-02 | CheckStatusResponse | 2 | ✅ |
+| US-040 | Epic-02 | CheckStatusAsync | 3 | ✅ |
+| US-041 | Epic-02 | SettleRequest | 2 | ⏳ |
+| US-042 | Epic-02 | SettleResponse | 2 | ⏳ |
+| US-043 | Epic-02 | SettleAsync | 3 | ⏳ |
+| US-044 | Epic-02 | WayForPayClient | 5 | ✅ |
+| US-045 | Epic-02 | Error Mapping | 3 | ⏳ |
+| US-046 | Epic-02 | Transient Detection | 2 | ⏳ |
+| US-047 | Epic-03 | Complete3DsRequest | 2 | ⏳ |
+| US-048 | Epic-03 | Complete3DsResponse | 2 | ⏳ |
+| US-049 | Epic-03 | Complete3DsAsync | 3 | ⏳ |
+| US-050 | Epic-03 | 3DS Detection | 2 | ⏳ |
+| US-051 | Epic-03 | VerifyRequest | 2 | ⏳ |
+| US-052 | Epic-03 | VerifyResponse | 2 | ⏳ |
+| US-053 | Epic-03 | VerifyAsync | 3 | ⏳ |
+| US-054 | Epic-03 | TransactionListRequest | 2 | ⏳ |
+| US-055 | Epic-03 | TransactionListResponse | 2 | ⏳ |
+| US-056 | Epic-03 | GetTransactionListAsync | 3 | ⏳ |
+| US-057 | Epic-04 | InvoiceRequest | 3 | ⏳ |
+| US-058 | Epic-04 | InvoiceResponse | 2 | ⏳ |
+| US-059 | Epic-04 | CreateInvoiceAsync | 3 | ⏳ |
+| US-060 | Epic-04 | PurchaseRequest | 3 | ⏳ |
+| US-061 | Epic-04 | PurchaseFormData | 2 | ⏳ |
+| US-062 | Epic-04 | CreatePurchaseForm | 3 | ⏳ |
+| US-063 | Epic-04 | HTML Generation | 2 | ⏳ |
+| US-064 | Epic-04 | PaymentSystem Conversion | 2 | ⏳ |
+| US-065 | Epic-04 | Language Enum | 1 | ✅ |
+| US-066 | Epic-04 | Regular Payments | 3 | ⏳ |
+| US-067 | Epic-05 | IWebhookHandler | 2 | ⏳ |
+| US-068 | Epic-05 | WebhookPayload | 3 | ⏳ |
+| US-069 | Epic-05 | WebhookResponse | 2 | ⏳ |
+| US-070 | Epic-05 | WebhookStatus Enum | 1 | ⏳ |
+| US-071 | Epic-05 | ParseAsync (Stream) | 3 | ⏳ |
+| US-072 | Epic-05 | Parse (string) | 2 | ⏳ |
+| US-073 | Epic-05 | Signature Validation | 3 | ⏳ |
+| US-074 | Epic-05 | CreateResponse | 3 | ⏳ |
+| US-075 | Epic-05 | SerializeResponse | 2 | ⏳ |
+| US-076 | Epic-05 | ASP.NET ParseAsync | 2 | ⏳ |
+| US-077 | Epic-05 | ToActionResult | 2 | ⏳ |
+| US-078 | Epic-05 | HandleAsync | 3 | ⏳ |
+| US-079 | Epic-05 | Helper Properties | 1 | ⏳ |
+| US-080 | Epic-06 | ChargeBuilder Create | 2 | ⏳ |
+| US-081 | Epic-06 | Order Methods | 2 | ⏳ |
+| US-082 | Epic-06 | Product Methods | 2 | ⏳ |
+| US-083 | Epic-06 | Payment Methods | 2 | ⏳ |
+| US-084 | Epic-06 | Client Method | 1 | ⏳ |
+| US-085 | Epic-06 | Callback Methods | 1 | ⏳ |
+| US-086 | Epic-06 | Transaction Type | 2 | ⏳ |
+| US-087 | Epic-06 | 3DS Methods | 1 | ⏳ |
+| US-088 | Epic-06 | Build Validation | 3 | ⏳ |
+| US-089 | Epic-06 | RefundBuilder | 3 | ⏳ |
+| US-090 | Epic-06 | InvoiceBuilder | 3 | ⏳ |
+| US-091 | Epic-06 | PurchaseFormBuilder | 3 | ⏳ |
+| US-092 | Epic-06 | CheckBuilder | 2 | ⏳ |
+| US-093 | Epic-06 | Polly Retry | 3 | ⏳ |
+| US-094 | Epic-06 | Polly Circuit Breaker | 3 | ⏳ |
+| US-095 | Epic-06 | AddWayForPayWithPolly | 2 | ⏳ |
+| US-096 | Epic-06 | Logging Handler | 3 | ⏳ |
+| US-097 | Epic-06 | XML Documentation | 5 | ⏳ |
+| US-098 | Epic-06 | README.md | 3 | ⏳ |
+| US-099 | Epic-06 | API Reference | 3 | ⏳ |
+| US-100 | Epic-06 | Migration Guide | 2 | ⏳ |
 
 **Total: 100 User Stories, ~233 Story Points**
+
+**Прогрес реалізації:**
+- ✅ Завершено: 41 US (~100 SP)
+- ⏳ Очікує: 59 US (~133 SP)
+- 📊 Загальний прогрес: ~43%
 
 ### Appendix B: Sprint Calendar
 
@@ -1239,6 +1288,7 @@ PROB    ├───────────┼───────────
 | Версія | Дата | Автор | Зміни |
 |--------|------|-------|-------|
 | 1.0 | 08.01.2026 | BA Team | Initial version |
+| 1.1 | 08.01.2026 | Dev Team | Phase 1 (Epic-01) завершено; Phase 2 розпочато (CHARGE, REFUND, CHECK_STATUS реалізовано); .NET 6.0 видалено з Target Frameworks |
 
 ---
 
