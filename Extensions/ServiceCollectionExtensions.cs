@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using WayForPaySDK.Crypto;
+using WayForPaySDK.Handlers;
 using WayForPaySDK.Http;
 using WayForPaySDK.Options;
 using WayForPaySDK.Services;
@@ -59,6 +60,8 @@ public static class ServiceCollectionExtensions
             client.Timeout = TimeSpan.FromSeconds(options.TimeoutSeconds);
             client.DefaultRequestHeaders.Add("Accept", "application/json");
         });
+
+        services.AddScoped<IWebhookHandler, WebhookHandler>();
 
         return services;
     }
