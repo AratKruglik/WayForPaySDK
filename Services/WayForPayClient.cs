@@ -159,6 +159,302 @@ public sealed class WayForPayClient : IWayForPayClient
         return await SendRequestAsync<CheckStatusRequest, CheckStatusResponse>(request, cancellationToken);
     }
 
+    /// <inheritdoc />
+    public async Task<SettleResponse> SettleAsync(
+        string orderReference,
+        decimal amount,
+        string currency,
+        CancellationToken cancellationToken = default)
+    {
+        var request = new SettleRequest
+        {
+            MerchantAccount = _options.MerchantAccount,
+            MerchantSignature = string.Empty,
+            OrderReference = orderReference,
+            Amount = amount,
+            Currency = currency.ToUpperInvariant()
+        };
+
+        request.MerchantSignature = _signatureGenerator.GenerateSignature(request.GetSignatureFields());
+
+        return await SendRequestAsync<SettleRequest, SettleResponse>(request, cancellationToken);
+    }
+
+    /// <inheritdoc />
+    public async Task<VoidResponse> VoidAsync(
+        string orderReference,
+        decimal amount,
+        string currency,
+        string? comment = null,
+        CancellationToken cancellationToken = default)
+    {
+        var request = new VoidRequest
+        {
+            MerchantAccount = _options.MerchantAccount,
+            MerchantSignature = string.Empty,
+            OrderReference = orderReference,
+            Amount = amount,
+            Currency = currency.ToUpperInvariant(),
+            Comment = comment
+        };
+
+        request.MerchantSignature = _signatureGenerator.GenerateSignature(request.GetSignatureFields());
+
+        return await SendRequestAsync<VoidRequest, VoidResponse>(request, cancellationToken);
+    }
+
+    /// <inheritdoc />
+    public async Task<PurchaseResponse> CreatePurchaseAsync(
+        string orderReference,
+        decimal amount,
+        string currency,
+        IEnumerable<Product> products,
+        Client? client = null,
+        string? returnUrl = null,
+        string? serviceUrl = null,
+        string? language = null,
+        CancellationToken cancellationToken = default)
+    {
+        var productList = products.ToList();
+
+        var request = new PurchaseRequest
+        {
+            MerchantAccount = _options.MerchantAccount,
+            MerchantDomainName = _options.MerchantDomainName,
+            MerchantSignature = string.Empty,
+            OrderReference = orderReference,
+            OrderDate = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+            Amount = amount,
+            Currency = currency.ToUpperInvariant(),
+            ProductName = productList.Select(p => p.Name).ToArray(),
+            ProductPrice = productList.Select(p => p.Price).ToArray(),
+            ProductCount = productList.Select(p => p.Count).ToArray(),
+            ClientFirstName = client?.FirstName,
+            ClientLastName = client?.LastName,
+            ClientEmail = client?.Email,
+            ClientPhone = client?.Phone,
+            ClientCountry = client?.Country,
+            ReturnUrl = returnUrl,
+            ServiceUrl = serviceUrl,
+            Language = language
+        };
+
+        request.MerchantSignature = _signatureGenerator.GenerateSignature(request.GetSignatureFields());
+
+        return await SendRequestAsync<PurchaseRequest, PurchaseResponse>(request, cancellationToken);
+    }
+
+    /// <inheritdoc />
+    public async Task<InvoiceResponse> CreateInvoiceAsync(
+        string orderReference,
+        decimal amount,
+        string currency,
+        IEnumerable<Product> products,
+        Client? client = null,
+        string? returnUrl = null,
+        string? serviceUrl = null,
+        string? language = null,
+        int? orderLifetime = null,
+        CancellationToken cancellationToken = default)
+    {
+        var productList = products.ToList();
+
+        var request = new InvoiceRequest
+        {
+            MerchantAccount = _options.MerchantAccount,
+            MerchantDomainName = _options.MerchantDomainName,
+            MerchantSignature = string.Empty,
+            OrderReference = orderReference,
+            OrderDate = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+            Amount = amount,
+            Currency = currency.ToUpperInvariant(),
+            ProductName = productList.Select(p => p.Name).ToArray(),
+            ProductPrice = productList.Select(p => p.Price).ToArray(),
+            ProductCount = productList.Select(p => p.Count).ToArray(),
+            ClientFirstName = client?.FirstName,
+            ClientLastName = client?.LastName,
+            ClientEmail = client?.Email,
+            ClientPhone = client?.Phone,
+            ReturnUrl = returnUrl,
+            ServiceUrl = serviceUrl,
+            Language = language,
+            OrderLifetime = orderLifetime
+        };
+
+        request.MerchantSignature = _signatureGenerator.GenerateSignature(request.GetSignatureFields());
+
+        return await SendRequestAsync<InvoiceRequest, InvoiceResponse>(request, cancellationToken);
+    }
+
+    /// <inheritdoc />
+    public async Task<Complete3DSResponse> Complete3DSAsync(
+        string d3Md,
+        string d3Pares,
+        CancellationToken cancellationToken = default)
+    {
+        var request = new Complete3DSRequest
+        {
+            MerchantAccount = _options.MerchantAccount,
+            MerchantDomainName = _options.MerchantDomainName,
+            MerchantSignature = string.Empty,
+            D3Md = d3Md,
+            D3Pares = d3Pares
+        };
+
+        request.MerchantSignature = _signatureGenerator.GenerateSignature(request.GetSignatureFields());
+
+        return await SendRequestAsync<Complete3DSRequest, Complete3DSResponse>(request, cancellationToken);
+    }
+
+    /// <inheritdoc />
+    public async Task<VerifyResponse> VerifyAsync(
+        string orderReference,
+        Card card,
+        Client? client = null,
+        CancellationToken cancellationToken = default)
+    {
+        var request = new VerifyRequest
+        {
+            MerchantAccount = _options.MerchantAccount,
+            MerchantDomainName = _options.MerchantDomainName,
+            MerchantSignature = string.Empty,
+            OrderReference = orderReference,
+            OrderDate = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+            CardNumber = card.Number,
+            ExpMonth = card.ExpireMonth.ToString("D2"),
+            ExpYear = card.ExpireYear.ToString(),
+            CardCvv = card.Cvv,
+            CardHolder = card.Holder,
+            ClientFirstName = client?.FirstName,
+            ClientLastName = client?.LastName,
+            ClientEmail = client?.Email,
+            ClientPhone = client?.Phone,
+            ClientCountry = client?.Country,
+            ClientIpAddress = client?.IpAddress
+        };
+
+        request.MerchantSignature = _signatureGenerator.GenerateSignature(request.GetSignatureFields());
+
+        return await SendRequestAsync<VerifyRequest, VerifyResponse>(request, cancellationToken);
+    }
+
+    /// <inheritdoc />
+    public async Task<TransactionListResponse> GetTransactionListAsync(
+        DateTimeOffset dateBegin,
+        DateTimeOffset dateEnd,
+        CancellationToken cancellationToken = default)
+    {
+        var request = new TransactionListRequest
+        {
+            MerchantAccount = _options.MerchantAccount,
+            MerchantDomainName = _options.MerchantDomainName,
+            MerchantSignature = string.Empty,
+            DateBegin = dateBegin.ToUnixTimeSeconds(),
+            DateEnd = dateEnd.ToUnixTimeSeconds()
+        };
+
+        request.MerchantSignature = _signatureGenerator.GenerateSignature(request.GetSignatureFields());
+
+        return await SendRequestAsync<TransactionListRequest, TransactionListResponse>(request, cancellationToken);
+    }
+
+    /// <inheritdoc />
+    public async Task<ChargeResponse> ChargeWithRegularAsync(
+        string orderReference,
+        decimal amount,
+        string currency,
+        Card card,
+        IEnumerable<Product> products,
+        Regular regular,
+        Client? client = null,
+        string? serviceUrl = null,
+        CancellationToken cancellationToken = default)
+    {
+        var productList = products.ToList();
+
+        var request = new ChargeRequest
+        {
+            MerchantAccount = _options.MerchantAccount,
+            MerchantDomainName = _options.MerchantDomainName,
+            MerchantSignature = string.Empty,
+            OrderReference = orderReference,
+            OrderDate = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+            Amount = amount,
+            Currency = currency.ToUpperInvariant(),
+            CardNumber = card.Number,
+            ExpMonth = card.ExpireMonth.ToString("D2"),
+            ExpYear = card.ExpireYear.ToString(),
+            CardCvv = card.Cvv,
+            CardHolder = card.Holder,
+            ProductName = productList.Select(p => p.Name).ToArray(),
+            ProductPrice = productList.Select(p => p.Price).ToArray(),
+            ProductCount = productList.Select(p => p.Count).ToArray(),
+            ClientFirstName = client?.FirstName,
+            ClientLastName = client?.LastName,
+            ClientEmail = client?.Email,
+            ClientPhone = client?.Phone,
+            ClientCountry = client?.Country,
+            ClientIpAddress = client?.IpAddress,
+            ServiceUrl = serviceUrl,
+            RegularAmount = regular.Amount,
+            RegularMode = regular.Modes.Select(m => m.ToString().ToLowerInvariant()).ToArray(),
+            RegularOn = regular.DateNext?.ToString("yyyy-MM-dd"),
+            RegularCount = regular.Count,
+            RegularBehavior = regular.Behavior?.ToString().ToLowerInvariant()
+        };
+
+        request.MerchantSignature = _signatureGenerator.GenerateSignature(request.GetSignatureFields());
+
+        return await SendRequestAsync<ChargeRequest, ChargeResponse>(request, cancellationToken);
+    }
+
+    /// <inheritdoc />
+    public async Task<PurchaseResponse> CreatePurchaseWithRegularAsync(
+        string orderReference,
+        decimal amount,
+        string currency,
+        IEnumerable<Product> products,
+        Regular regular,
+        Client? client = null,
+        string? returnUrl = null,
+        string? serviceUrl = null,
+        string? language = null,
+        CancellationToken cancellationToken = default)
+    {
+        var productList = products.ToList();
+
+        var request = new PurchaseRequest
+        {
+            MerchantAccount = _options.MerchantAccount,
+            MerchantDomainName = _options.MerchantDomainName,
+            MerchantSignature = string.Empty,
+            OrderReference = orderReference,
+            OrderDate = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+            Amount = amount,
+            Currency = currency.ToUpperInvariant(),
+            ProductName = productList.Select(p => p.Name).ToArray(),
+            ProductPrice = productList.Select(p => p.Price).ToArray(),
+            ProductCount = productList.Select(p => p.Count).ToArray(),
+            ClientFirstName = client?.FirstName,
+            ClientLastName = client?.LastName,
+            ClientEmail = client?.Email,
+            ClientPhone = client?.Phone,
+            ClientCountry = client?.Country,
+            ReturnUrl = returnUrl,
+            ServiceUrl = serviceUrl,
+            Language = language,
+            RegularAmount = regular.Amount,
+            RegularMode = regular.Modes.Select(m => m.ToString().ToLowerInvariant()).ToArray(),
+            RegularOn = regular.DateNext?.ToString("yyyy-MM-dd"),
+            RegularCount = regular.Count,
+            RegularBehavior = regular.Behavior?.ToString().ToLowerInvariant()
+        };
+
+        request.MerchantSignature = _signatureGenerator.GenerateSignature(request.GetSignatureFields());
+
+        return await SendRequestAsync<PurchaseRequest, PurchaseResponse>(request, cancellationToken);
+    }
+
     private async Task<TResponse> SendRequestAsync<TRequest, TResponse>(
         TRequest request,
         CancellationToken cancellationToken)

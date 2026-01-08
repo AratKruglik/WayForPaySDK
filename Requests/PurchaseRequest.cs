@@ -1,16 +1,15 @@
 using System.Text.Json.Serialization;
-using WayForPaySDK.Domain;
-using WayForPaySDK.Domain.Enums;
 
 namespace WayForPaySDK.Requests;
 
 /// <summary>
-/// Request for direct card charge (server-to-server).
+/// Request for creating a purchase payment (redirect flow).
+/// Used to redirect the client to WayForPay payment page.
 /// </summary>
-public sealed class ChargeRequest : ApiRequest
+public sealed class PurchaseRequest : ApiRequest
 {
     /// <inheritdoc />
-    public override string TransactionType => "CHARGE";
+    public override string TransactionType => "PURCHASE";
 
     /// <summary>
     /// Gets or sets the merchant domain name.
@@ -41,42 +40,6 @@ public sealed class ChargeRequest : ApiRequest
     /// </summary>
     [JsonPropertyName("currency")]
     public required string Currency { get; set; }
-
-    /// <summary>
-    /// Gets or sets the card number (when paying with card details).
-    /// </summary>
-    [JsonPropertyName("card")]
-    public string? CardNumber { get; set; }
-
-    /// <summary>
-    /// Gets or sets the card expiration month (01-12).
-    /// </summary>
-    [JsonPropertyName("expMonth")]
-    public string? ExpMonth { get; set; }
-
-    /// <summary>
-    /// Gets or sets the card expiration year (4 digits).
-    /// </summary>
-    [JsonPropertyName("expYear")]
-    public string? ExpYear { get; set; }
-
-    /// <summary>
-    /// Gets or sets the card CVV code.
-    /// </summary>
-    [JsonPropertyName("cardCvv")]
-    public string? CardCvv { get; set; }
-
-    /// <summary>
-    /// Gets or sets the cardholder name.
-    /// </summary>
-    [JsonPropertyName("cardHolder")]
-    public string? CardHolder { get; set; }
-
-    /// <summary>
-    /// Gets or sets the recurring payment token (alternative to card details).
-    /// </summary>
-    [JsonPropertyName("recToken")]
-    public string? RecToken { get; set; }
 
     /// <summary>
     /// Gets or sets the product names.
@@ -127,28 +90,34 @@ public sealed class ChargeRequest : ApiRequest
     public string? ClientCountry { get; set; }
 
     /// <summary>
-    /// Gets or sets the client IP address.
+    /// Gets or sets the return URL after successful payment.
     /// </summary>
-    [JsonPropertyName("clientIpAddress")]
-    public string? ClientIpAddress { get; set; }
+    [JsonPropertyName("returnUrl")]
+    public string? ReturnUrl { get; set; }
 
     /// <summary>
-    /// Gets or sets the service URL for callbacks.
+    /// Gets or sets the service URL for server-to-server callbacks.
     /// </summary>
     [JsonPropertyName("serviceUrl")]
     public string? ServiceUrl { get; set; }
+
+    /// <summary>
+    /// Gets or sets the payment page language (uk, ru, en).
+    /// </summary>
+    [JsonPropertyName("language")]
+    public string? Language { get; set; }
+
+    /// <summary>
+    /// Gets or sets the order timeout in seconds.
+    /// </summary>
+    [JsonPropertyName("orderTimeout")]
+    public int? OrderTimeout { get; set; }
 
     /// <summary>
     /// Gets or sets the merchant transaction type (SALE or AUTH).
     /// </summary>
     [JsonPropertyName("merchantTransactionType")]
     public string? MerchantTransactionType { get; set; }
-
-    /// <summary>
-    /// Gets or sets the merchant transaction secure type (AUTO, 3DS, NON3DS).
-    /// </summary>
-    [JsonPropertyName("merchantTransactionSecureType")]
-    public string? MerchantTransactionSecureType { get; set; }
 
     /// <summary>
     /// Gets or sets the recurring payment amount (if different from initial).
