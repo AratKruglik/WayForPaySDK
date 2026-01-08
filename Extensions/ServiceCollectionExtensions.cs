@@ -3,6 +3,7 @@ using Microsoft.Extensions.Options;
 using WayForPaySDK.Crypto;
 using WayForPaySDK.Http;
 using WayForPaySDK.Options;
+using WayForPaySDK.Services;
 
 namespace WayForPaySDK.Extensions;
 
@@ -51,7 +52,7 @@ public static class ServiceCollectionExtensions
     {
         services.AddSingleton<ISignatureGenerator, SignatureGenerator>();
 
-        services.AddHttpClient<IWayForPayHttpClient, WayForPayHttpClient>((sp, client) =>
+        services.AddHttpClient<IWayForPayClient, WayForPayClient>((sp, client) =>
         {
             var options = sp.GetRequiredService<IOptions<WayForPayOptions>>().Value;
             client.BaseAddress = new Uri(options.ApiBaseUrl);
