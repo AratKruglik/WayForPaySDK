@@ -4,6 +4,7 @@ using FluentAssertions;
 using WayForPaySDK.Crypto;
 using WayForPaySDK.Exceptions;
 using WayForPaySDK.Handlers;
+using WayForPaySDK.Serialization;
 using WayForPaySDK.Tests.Fixtures;
 
 namespace WayForPaySDK.Tests.Unit;
@@ -12,11 +13,16 @@ public class WebhookHandlerTests
 {
     private readonly WebhookHandler _sut;
     private readonly SignatureGenerator _signatureGenerator;
+    private readonly JsonSerializerOptions _jsonOptions;
 
     public WebhookHandlerTests()
     {
         _signatureGenerator = new SignatureGenerator(TestOptions.CreateOptions());
         _sut = new WebhookHandler(_signatureGenerator);
+        _jsonOptions = new JsonSerializerOptions
+        {
+            TypeInfoResolver = WayForPayJsonContext.Default
+        };
     }
 
     [Fact]
@@ -24,7 +30,7 @@ public class WebhookHandlerTests
     {
         // Arrange
         var payload = CreateValidWebhookPayload();
-        var json = JsonSerializer.Serialize(payload);
+        var json = JsonSerializer.Serialize(payload, _jsonOptions);
         var stream = new MemoryStream(Encoding.UTF8.GetBytes(json));
 
         // Act
@@ -41,7 +47,7 @@ public class WebhookHandlerTests
     {
         // Arrange
         var payload = CreateValidWebhookPayload() with { MerchantSignature = "invalid_signature" };
-        var json = JsonSerializer.Serialize(payload);
+        var json = JsonSerializer.Serialize(payload, _jsonOptions);
         var stream = new MemoryStream(Encoding.UTF8.GetBytes(json));
 
         // Act
@@ -83,7 +89,7 @@ public class WebhookHandlerTests
     {
         // Arrange
         var payload = CreateValidWebhookPayload();
-        var json = JsonSerializer.Serialize(payload);
+        var json = JsonSerializer.Serialize(payload, _jsonOptions);
 
         // Act
         var result = _sut.Parse(json);
@@ -98,7 +104,7 @@ public class WebhookHandlerTests
     {
         // Arrange
         var payload = CreateValidWebhookPayload() with { MerchantSignature = "invalid" };
-        var json = JsonSerializer.Serialize(payload);
+        var json = JsonSerializer.Serialize(payload, _jsonOptions);
 
         // Act
         var act = () => _sut.Parse(json);
@@ -253,12 +259,12 @@ public class WebhookHandlerTests
         {
             merchantAccount,
             orderReference,
-            amount.ToString("0.##"),
+            amount.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture),
             currency,
             authCode,
             cardPan,
             transactionStatus,
-            reasonCode.ToString()
+            reasonCode.ToString(System.Globalization.CultureInfo.InvariantCulture)
         };
 
         var signature = _signatureGenerator.GenerateSignature(signatureFields);
@@ -286,12 +292,12 @@ public class WebhookHandlerTests
         {
             basePayload.MerchantAccount,
             basePayload.OrderReference,
-            basePayload.Amount.ToString("0.##"),
+            basePayload.Amount.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture),
             basePayload.Currency,
             basePayload.AuthCode ?? string.Empty,
             basePayload.CardPan ?? string.Empty,
             status,
-            reasonCode.ToString()
+            reasonCode.ToString(System.Globalization.CultureInfo.InvariantCulture)
         };
 
         var signature = _signatureGenerator.GenerateSignature(signatureFields);

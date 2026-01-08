@@ -6,7 +6,9 @@ using WayForPaySDK.Options;
 namespace WayForPaySDK.Crypto;
 
 /// <summary>
-/// Generates and verifies HMAC-MD5 signatures for WayForPay API requests.
+/// Generates and verifies MD5 signatures for WayForPay API requests.
+/// Note: WayForPay documentation refers to this as "HMAC_MD5" but actually uses
+/// simple MD5 hash with secret key appended: MD5(data;secret)
 /// </summary>
 public sealed class SignatureGenerator : ISignatureGenerator
 {
@@ -34,12 +36,14 @@ public sealed class SignatureGenerator : ISignatureGenerator
         ArgumentNullException.ThrowIfNull(fields);
         ArgumentException.ThrowIfNullOrEmpty(secretKey);
 
-        var data = string.Join(Delimiter, fields);
-        var keyBytes = Encoding.UTF8.GetBytes(secretKey);
+        // WayForPay signature format: MD5(fields;secret)
+        // NOT HMAC-MD5 - just simple MD5 with secret appended
+        var data = string.Join(Delimiter, fields) + Delimiter + secretKey;
         var dataBytes = Encoding.UTF8.GetBytes(data);
 
 #pragma warning disable CA5351 // WayForPay API requires MD5
-        var hashBytes = HMACMD5.HashData(keyBytes, dataBytes);
+        using var md5 = MD5.Create();
+        var hashBytes = md5.ComputeHash(dataBytes);
 #pragma warning restore CA5351
 
         return Convert.ToHexString(hashBytes).ToLowerInvariant();

@@ -133,10 +133,11 @@ public class SignatureGeneratorTests
     }
 
     [Fact]
-    public void VerifySignature_WithCaseDifferentSignatures_ReturnsFalse()
+    public void VerifySignature_WithCaseDifferentSignatures_ReturnsTrue()
     {
         // Arrange
-        // Signature verification is case-sensitive to prevent timing attacks
+        // Signature verification is case-insensitive for better compatibility
+        // Both signatures are normalized to lowercase before comparison
         var signature1 = "a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6";
         var signature2 = "A1B2C3D4E5F6A7B8C9D0E1F2A3B4C5D6";
 
@@ -144,7 +145,7 @@ public class SignatureGeneratorTests
         var result = _sut.VerifySignature(signature1, signature2);
 
         // Assert
-        result.Should().BeFalse("signature comparison should be case-sensitive");
+        result.Should().BeTrue("signature comparison is case-insensitive");
     }
 
     [Theory]

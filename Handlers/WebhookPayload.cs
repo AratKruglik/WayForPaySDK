@@ -32,6 +32,7 @@ public sealed record WebhookPayload
     /// Gets or sets the transaction amount.
     /// </summary>
     [JsonPropertyName("amount")]
+    [JsonConverter(typeof(Serialization.DecimalJsonConverter))]
     public required decimal Amount { get; init; }
 
     /// <summary>
