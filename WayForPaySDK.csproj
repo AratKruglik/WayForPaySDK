@@ -9,17 +9,31 @@
         <!-- Package metadata -->
         <PackageId>WayForPaySDK</PackageId>
         <Version>1.0.0</Version>
-        <Authors>WayForPaySDK Contributors</Authors>
-        <Description>A .NET SDK for WayForPay payment gateway integration</Description>
-        <PackageTags>wayforpay;payment;sdk;ukraine</PackageTags>
+        <Authors>Oleksii Kruhlik</Authors>
+        <Company>WayForPaySDK</Company>
+        <Product>WayForPay SDK</Product>
+        <Description>A modern .NET SDK for WayForPay payment gateway integration. Supports all major operations including Purchase, Charge, Refund, Settlement, and Status checks. Compatible with .NET 8.0, 9.0, and 10.0.</Description>
+        <Copyright>Copyright © 2026 Oleksii Kruhlik</Copyright>
+        <PackageTags>wayforpay;payment;payment-gateway;sdk;ukraine;dotnet;csharp;ecommerce;online-payments;fintech</PackageTags>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageProjectUrl>https://github.com/AratKruglik/WayForPaySDK</PackageProjectUrl>
         <RepositoryUrl>https://github.com/AratKruglik/WayForPaySDK</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <PackageReleaseNotes>Initial release with full WayForPay API support. See CHANGELOG.md for details.</PackageReleaseNotes>
+        <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
 
         <!-- Build settings -->
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
         <NoWarn>$(NoWarn);CS1591</NoWarn>
+        <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+
+        <!-- Symbol package settings for debugging -->
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+        <PublishRepositoryUrl>true</PublishRepositoryUrl>
+        <EmbedUntrackedSources>true</EmbedUntrackedSources>
     </PropertyGroup>
 
     <ItemGroup>
@@ -39,6 +53,12 @@
     <!-- Exclude test files from compilation -->
     <ItemGroup>
         <Compile Remove="tests/**/*.cs" />
+    </ItemGroup>
+
+    <!-- Include README and LICENSE in package -->
+    <ItemGroup>
+        <None Include="README.md" Pack="true" PackagePath="/" />
+        <None Include="LICENSE" Pack="true" PackagePath="/" />
     </ItemGroup>
 
 </Project>
