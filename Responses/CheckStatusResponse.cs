@@ -2,102 +2,53 @@ using System.Text.Json.Serialization;
 
 namespace WayForPaySDK.Responses;
 
-/// <summary>
-/// Response from a check status request.
-/// </summary>
 public sealed class CheckStatusResponse : ApiResponse
 {
-    /// <summary>
-    /// Gets or sets the merchant account.
-    /// </summary>
     [JsonPropertyName("merchantAccount")]
     public string? MerchantAccount { get; init; }
 
-    /// <summary>
-    /// Gets or sets the order reference.
-    /// </summary>
     [JsonPropertyName("orderReference")]
     public string? OrderReference { get; init; }
 
-    /// <summary>
-    /// Gets or sets the transaction amount.
-    /// </summary>
     [JsonPropertyName("amount")]
     public decimal? Amount { get; init; }
 
-    /// <summary>
-    /// Gets or sets the currency code.
-    /// </summary>
     [JsonPropertyName("currency")]
     public string? Currency { get; init; }
 
-    /// <summary>
-    /// Gets or sets the authorization code.
-    /// </summary>
     [JsonPropertyName("authCode")]
     public string? AuthCode { get; init; }
 
-    /// <summary>
-    /// Gets or sets the masked card number.
-    /// </summary>
     [JsonPropertyName("cardPan")]
     public string? CardPan { get; init; }
 
-    /// <summary>
-    /// Gets or sets the card type.
-    /// </summary>
     [JsonPropertyName("cardType")]
     public string? CardType { get; init; }
 
-    /// <summary>
-    /// Gets or sets the transaction status.
-    /// </summary>
     [JsonPropertyName("transactionStatus")]
     public string? TransactionStatus { get; init; }
 
-    /// <summary>
-    /// Gets or sets the processing date as Unix timestamp.
-    /// </summary>
     [JsonPropertyName("createdDate")]
     public long? CreatedDate { get; init; }
 
-    /// <summary>
-    /// Gets or sets the processing date as Unix timestamp.
-    /// </summary>
     [JsonPropertyName("processingDate")]
     public long? ProcessingDate { get; init; }
 
-    /// <summary>
-    /// Gets or sets the issuer bank country.
-    /// </summary>
     [JsonPropertyName("issuerBankCountry")]
     public string? IssuerBankCountry { get; init; }
 
-    /// <summary>
-    /// Gets or sets the issuer bank name.
-    /// </summary>
     [JsonPropertyName("issuerBankName")]
     public string? IssuerBankName { get; init; }
 
-    /// <summary>
-    /// Gets or sets the transaction fee.
-    /// </summary>
     [JsonPropertyName("fee")]
     public decimal? Fee { get; init; }
 
-    /// <summary>
-    /// Gets or sets the payment system used.
-    /// </summary>
     [JsonPropertyName("paymentSystem")]
     public string? PaymentSystem { get; init; }
 
-    /// <summary>
-    /// Gets or sets the recurring payment token.
-    /// </summary>
     [JsonPropertyName("recToken")]
     public string? RecToken { get; init; }
 
-    /// <inheritdoc />
     public override IEnumerable<string> GetSignatureFields()
     {
         return new[]

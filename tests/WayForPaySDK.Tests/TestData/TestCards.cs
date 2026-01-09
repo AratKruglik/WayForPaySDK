@@ -2,14 +2,10 @@ using WayForPaySDK.Domain;
 
 namespace WayForPaySDK.Tests.TestData;
 
-/// <summary>
-/// Test card data based on WayForPay documentation.
-/// </summary>
+/// Test cards based on WayForPay documentation
 public static class TestCards
 {
-    /// <summary>
-    /// Visa card that will be approved.
-    /// </summary>
+    /// Approved transaction
     public static Card ApprovedVisa => new()
     {
         Number = "4111111111111111",
@@ -19,9 +15,7 @@ public static class TestCards
         Holder = "TEST CARD"
     };
 
-    /// <summary>
-    /// Visa card that will be declined (insufficient funds).
-    /// </summary>
+    /// Declined (insufficient funds)
     public static Card DeclinedVisa => new()
     {
         Number = "4111111111111112",
@@ -31,9 +25,7 @@ public static class TestCards
         Holder = "TEST CARD"
     };
 
-    /// <summary>
-    /// Visa card that requires 3D Secure.
-    /// </summary>
+    /// Requires 3D Secure
     public static Card ThreeDSVisa => new()
     {
         Number = "4111111111111113",
@@ -43,9 +35,7 @@ public static class TestCards
         Holder = "TEST CARD"
     };
 
-    /// <summary>
-    /// MasterCard that will be approved.
-    /// </summary>
+    /// Approved transaction
     public static Card ApprovedMasterCard => new()
     {
         Number = "5555555555554444",

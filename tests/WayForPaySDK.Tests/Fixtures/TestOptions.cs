@@ -3,9 +3,6 @@ using WayForPaySDK.Options;
 
 namespace WayForPaySDK.Tests.Fixtures;
 
-/// <summary>
-/// Provides test WayForPayOptions for unit and integration tests.
-/// </summary>
 public static class TestOptions
 {
     public const string TestMerchantAccount = "test_merchant";
