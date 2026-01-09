@@ -7,19 +7,8 @@ using WayForPaySDK.Serialization;
 
 namespace WayForPaySDK.Extensions;
 
-/// <summary>
-/// Extension methods for integrating IWebhookHandler with ASP.NET Core.
-/// </summary>
 public static class WebhookHandlerExtensions
 {
-    /// <summary>
-    /// Parses webhook payload from HttpRequest.
-    /// </summary>
-    /// <param name="handler">Webhook handler.</param>
-    /// <param name="request">HTTP request.</param>
-    /// <param name="cancellationToken">Cancellation token.</param>
-    /// <returns>Validated webhook payload.</returns>
-    /// <exception cref="ArgumentNullException">Thrown when handler or request is null.</exception>
     public static async Task<WebhookPayload> ParseAsync(
         this IWebhookHandler handler,
         HttpRequest request,
@@ -28,18 +17,11 @@ public static class WebhookHandlerExtensions
         ArgumentNullException.ThrowIfNull(handler);
         ArgumentNullException.ThrowIfNull(request);
 
-        // Enable request body buffering to allow multiple reads
         request.EnableBuffering();
 
         return await handler.ParseAsync(request.Body, cancellationToken);
     }
 
-    /// <summary>
-    /// Converts WebhookResponse to IActionResult for ASP.NET Core controllers.
-    /// </summary>
-    /// <param name="response">Webhook response.</param>
-    /// <returns>IActionResult with JSON content.</returns>
-    /// <exception cref="ArgumentNullException">Thrown when response is null.</exception>
     public static IActionResult ToActionResult(this WebhookResponse response)
     {
         ArgumentNullException.ThrowIfNull(response);
@@ -54,20 +36,6 @@ public static class WebhookHandlerExtensions
         };
     }
 
-    /// <summary>
-    /// Handles webhook processing with automatic parsing, processing, and response generation.
-    /// Simplifies webhook handling to a single method call.
-    /// </summary>
-    /// <param name="handler">Webhook handler.</param>
-    /// <param name="request">HTTP request.</param>
-    /// <param name="processPayload">Function to process the validated payload.</param>
-    /// <param name="cancellationToken">Cancellation token.</param>
-    /// <returns>IActionResult with accept or decline response.</returns>
-    /// <exception cref="ArgumentNullException">Thrown when any parameter is null.</exception>
-    /// <remarks>
-    /// If processPayload throws an exception, a decline response is automatically returned.
-    /// If processPayload completes successfully, an accept response is returned.
-    /// </remarks>
     public static async Task<IActionResult> HandleAsync(
         this IWebhookHandler handler,
         HttpRequest request,
@@ -88,7 +56,6 @@ public static class WebhookHandlerExtensions
         catch
         {
             // If processing fails, we still need to respond to WayForPay
-            // Use a minimal decline response with empty orderReference
             var declineResponse = new WebhookResponse
             {
                 OrderReference = string.Empty,
@@ -100,16 +67,6 @@ public static class WebhookHandlerExtensions
         }
     }
 
-    /// <summary>
-    /// Handles webhook processing with automatic parsing, processing, and response generation.
-    /// Allows the processor to return custom WebhookStatus.
-    /// </summary>
-    /// <param name="handler">Webhook handler.</param>
-    /// <param name="request">HTTP request.</param>
-    /// <param name="processPayload">Function to process the validated payload and return status.</param>
-    /// <param name="cancellationToken">Cancellation token.</param>
-    /// <returns>IActionResult with custom status response.</returns>
-    /// <exception cref="ArgumentNullException">Thrown when any parameter is null.</exception>
     public static async Task<IActionResult> HandleAsync(
         this IWebhookHandler handler,
         HttpRequest request,

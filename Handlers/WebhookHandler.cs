@@ -6,19 +6,11 @@ using WayForPaySDK.Serialization;
 
 namespace WayForPaySDK.Handlers;
 
-/// <summary>
-/// Implementation of webhook callback handler for WayForPay.
-/// Handles parsing, signature validation, and response generation.
-/// </summary>
 public sealed class WebhookHandler : IWebhookHandler
 {
     private readonly ISignatureGenerator _signatureGenerator;
     private readonly JsonSerializerOptions _jsonOptions;
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="WebhookHandler"/> class.
-    /// </summary>
-    /// <param name="signatureGenerator">Signature generator for validation and signing.</param>
     public WebhookHandler(ISignatureGenerator signatureGenerator)
     {
         _signatureGenerator = signatureGenerator ?? throw new ArgumentNullException(nameof(signatureGenerator));
@@ -28,7 +20,6 @@ public sealed class WebhookHandler : IWebhookHandler
         };
     }
 
-    /// <inheritdoc />
     public async Task<WebhookPayload> ParseAsync(Stream body, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(body);
@@ -43,7 +34,6 @@ public sealed class WebhookHandler : IWebhookHandler
         return payload;
     }
 
-    /// <inheritdoc />
     public WebhookPayload Parse(string json)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(json);
@@ -55,7 +45,6 @@ public sealed class WebhookHandler : IWebhookHandler
         return payload;
     }
 
-    /// <inheritdoc />
     public WebhookResponse CreateResponse(WebhookPayload payload, WebhookStatus status = WebhookStatus.Accept)
     {
         ArgumentNullException.ThrowIfNull(payload);
@@ -82,7 +71,6 @@ public sealed class WebhookHandler : IWebhookHandler
         };
     }
 
-    /// <inheritdoc />
     public string SerializeResponse(WebhookResponse response)
     {
         ArgumentNullException.ThrowIfNull(response);

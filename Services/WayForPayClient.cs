@@ -11,9 +11,6 @@ using WayForPaySDK.Serialization;
 
 namespace WayForPaySDK.Services;
 
-/// <summary>
-/// Main client for WayForPay API operations.
-/// </summary>
 public sealed class WayForPayClient : IWayForPayClient
 {
     private readonly HttpClient _httpClient;
@@ -21,9 +18,6 @@ public sealed class WayForPayClient : IWayForPayClient
     private readonly ISignatureGenerator _signatureGenerator;
     private readonly JsonSerializerOptions _jsonOptions;
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="WayForPayClient"/> class.
-    /// </summary>
     public WayForPayClient(
         HttpClient httpClient,
         IOptions<WayForPayOptions> options,
@@ -35,7 +29,6 @@ public sealed class WayForPayClient : IWayForPayClient
         _jsonOptions = new JsonSerializerOptions(WayForPayJsonContext.Default.Options);
     }
 
-    /// <inheritdoc />
     public async Task<ChargeResponse> ChargeAsync(
         string orderReference,
         decimal amount,
@@ -79,7 +72,6 @@ public sealed class WayForPayClient : IWayForPayClient
         return await SendRequestAsync<ChargeRequest, ChargeResponse>(request, cancellationToken);
     }
 
-    /// <inheritdoc />
     public async Task<ChargeResponse> ChargeWithTokenAsync(
         string orderReference,
         decimal amount,
@@ -119,7 +111,6 @@ public sealed class WayForPayClient : IWayForPayClient
         return await SendRequestAsync<ChargeRequest, ChargeResponse>(request, cancellationToken);
     }
 
-    /// <inheritdoc />
     public async Task<RefundResponse> RefundAsync(
         string orderReference,
         decimal amount,
@@ -142,7 +133,6 @@ public sealed class WayForPayClient : IWayForPayClient
         return await SendRequestAsync<RefundRequest, RefundResponse>(request, cancellationToken);
     }
 
-    /// <inheritdoc />
     public async Task<CheckStatusResponse> CheckStatusAsync(
         string orderReference,
         CancellationToken cancellationToken = default)
@@ -159,7 +149,6 @@ public sealed class WayForPayClient : IWayForPayClient
         return await SendRequestAsync<CheckStatusRequest, CheckStatusResponse>(request, cancellationToken);
     }
 
-    /// <inheritdoc />
     public async Task<SettleResponse> SettleAsync(
         string orderReference,
         decimal amount,
@@ -180,7 +169,6 @@ public sealed class WayForPayClient : IWayForPayClient
         return await SendRequestAsync<SettleRequest, SettleResponse>(request, cancellationToken);
     }
 
-    /// <inheritdoc />
     public async Task<VoidResponse> VoidAsync(
         string orderReference,
         decimal amount,
@@ -203,7 +191,6 @@ public sealed class WayForPayClient : IWayForPayClient
         return await SendRequestAsync<VoidRequest, VoidResponse>(request, cancellationToken);
     }
 
-    /// <inheritdoc />
     public async Task<PurchaseResponse> CreatePurchaseAsync(
         string orderReference,
         decimal amount,
@@ -244,7 +231,6 @@ public sealed class WayForPayClient : IWayForPayClient
         return await SendRequestAsync<PurchaseRequest, PurchaseResponse>(request, cancellationToken);
     }
 
-    /// <inheritdoc />
     public async Task<InvoiceResponse> CreateInvoiceAsync(
         string orderReference,
         decimal amount,
@@ -286,7 +272,6 @@ public sealed class WayForPayClient : IWayForPayClient
         return await SendRequestAsync<InvoiceRequest, InvoiceResponse>(request, cancellationToken);
     }
 
-    /// <inheritdoc />
     public async Task<Complete3DSResponse> Complete3DSAsync(
         string d3Md,
         string d3Pares,
@@ -306,7 +291,6 @@ public sealed class WayForPayClient : IWayForPayClient
         return await SendRequestAsync<Complete3DSRequest, Complete3DSResponse>(request, cancellationToken);
     }
 
-    /// <inheritdoc />
     public async Task<VerifyResponse> VerifyAsync(
         string orderReference,
         Card card,
@@ -338,7 +322,6 @@ public sealed class WayForPayClient : IWayForPayClient
         return await SendRequestAsync<VerifyRequest, VerifyResponse>(request, cancellationToken);
     }
 
-    /// <inheritdoc />
     public async Task<TransactionListResponse> GetTransactionListAsync(
         DateTimeOffset dateBegin,
         DateTimeOffset dateEnd,
@@ -358,7 +341,6 @@ public sealed class WayForPayClient : IWayForPayClient
         return await SendRequestAsync<TransactionListRequest, TransactionListResponse>(request, cancellationToken);
     }
 
-    /// <inheritdoc />
     public async Task<ChargeResponse> ChargeWithRegularAsync(
         string orderReference,
         decimal amount,
@@ -408,7 +390,6 @@ public sealed class WayForPayClient : IWayForPayClient
         return await SendRequestAsync<ChargeRequest, ChargeResponse>(request, cancellationToken);
     }
 
-    /// <inheritdoc />
     public async Task<PurchaseResponse> CreatePurchaseWithRegularAsync(
         string orderReference,
         decimal amount,
