@@ -8,17 +8,8 @@ using WayForPaySDK.Services;
 
 namespace WayForPaySDK.Extensions;
 
-/// <summary>
-/// Extension methods for configuring WayForPay SDK services.
-/// </summary>
 public static class ServiceCollectionExtensions
 {
-    /// <summary>
-    /// Adds WayForPay SDK services to the service collection.
-    /// </summary>
-    /// <param name="services">The service collection.</param>
-    /// <param name="configureOptions">Action to configure WayForPay options.</param>
-    /// <returns>The service collection for chaining.</returns>
     public static IServiceCollection AddWayForPay(
         this IServiceCollection services,
         Action<WayForPayOptions> configureOptions)
@@ -31,12 +22,6 @@ public static class ServiceCollectionExtensions
         return services.AddWayForPayCore();
     }
 
-    /// <summary>
-    /// Adds WayForPay SDK services to the service collection using configuration binding.
-    /// </summary>
-    /// <param name="services">The service collection.</param>
-    /// <param name="configurationSection">The configuration section containing WayForPay settings.</param>
-    /// <returns>The service collection for chaining.</returns>
     public static IServiceCollection AddWayForPay(
         this IServiceCollection services,
         Microsoft.Extensions.Configuration.IConfigurationSection configurationSection)

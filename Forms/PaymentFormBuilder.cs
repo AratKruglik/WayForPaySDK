@@ -8,17 +8,11 @@ using WayForPaySDK.Options;
 
 namespace WayForPaySDK.Forms;
 
-/// <summary>
-/// Builder for creating HTML payment forms for WayForPay redirect flow.
-/// </summary>
 public sealed class PaymentFormBuilder
 {
     private readonly WayForPayOptions _options;
     private readonly ISignatureGenerator _signatureGenerator;
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="PaymentFormBuilder"/> class.
-    /// </summary>
     public PaymentFormBuilder(
         IOptions<WayForPayOptions> options,
         ISignatureGenerator signatureGenerator)
@@ -27,19 +21,6 @@ public sealed class PaymentFormBuilder
         _signatureGenerator = signatureGenerator;
     }
 
-    /// <summary>
-    /// Creates form data for a purchase payment.
-    /// </summary>
-    /// <param name="orderReference">Unique order identifier.</param>
-    /// <param name="amount">Payment amount.</param>
-    /// <param name="currency">Currency code (e.g., "UAH").</param>
-    /// <param name="products">Products in the order.</param>
-    /// <param name="client">Client information (optional).</param>
-    /// <param name="returnUrl">URL to redirect after payment (optional).</param>
-    /// <param name="serviceUrl">Callback URL for server notifications (optional).</param>
-    /// <param name="language">Payment page language (optional).</param>
-    /// <param name="regular">Recurring payment settings (optional).</param>
-    /// <returns>Purchase form data ready for HTML generation.</returns>
     public PurchaseFormData CreatePurchaseForm(
         string orderReference,
         decimal amount,
@@ -64,13 +45,11 @@ public sealed class PaymentFormBuilder
             ["currency"] = currency.ToUpperInvariant()
         };
 
-        // Add product arrays
         fields["productName[]"] = string.Join(";", productList.Select(p => p.Name));
         fields["productPrice[]"] = string.Join(";", productList.Select(p =>
             p.Price.ToString("0.##", CultureInfo.InvariantCulture)));
         fields["productCount[]"] = string.Join(";", productList.Select(p => p.Count));
 
-        // Add client information if provided
         if (client != null)
         {
             if (!string.IsNullOrEmpty(client.FirstName))
@@ -85,7 +64,6 @@ public sealed class PaymentFormBuilder
                 fields["clientCountry"] = client.Country;
         }
 
-        // Add optional URLs
         if (!string.IsNullOrEmpty(returnUrl))
             fields["returnUrl"] = returnUrl;
         if (!string.IsNullOrEmpty(serviceUrl))
@@ -93,7 +71,6 @@ public sealed class PaymentFormBuilder
         if (!string.IsNullOrEmpty(language))
             fields["language"] = language;
 
-        // Add regular payment fields if provided
         if (regular != null)
         {
             if (regular.Amount.HasValue)
@@ -112,7 +89,6 @@ public sealed class PaymentFormBuilder
                 fields["regularBehavior"] = regular.Behavior.Value.ToString().ToLowerInvariant();
         }
 
-        // Generate signature
         var signatureFields = new List<string>
         {
             _options.MerchantAccount,
@@ -135,11 +111,6 @@ public sealed class PaymentFormBuilder
         };
     }
 
-    /// <summary>
-    /// Generates HTML form markup from form data.
-    /// </summary>
-    /// <param name="formData">The form data.</param>
-    /// <returns>HTML string containing the form.</returns>
     public string GenerateHtml(PurchaseFormData formData)
     {
         var sb = new StringBuilder();
@@ -178,19 +149,6 @@ public sealed class PaymentFormBuilder
         return sb.ToString();
     }
 
-    /// <summary>
-    /// Creates and generates HTML for a purchase form in one call.
-    /// </summary>
-    /// <param name="orderReference">Unique order identifier.</param>
-    /// <param name="amount">Payment amount.</param>
-    /// <param name="currency">Currency code (e.g., "UAH").</param>
-    /// <param name="products">Products in the order.</param>
-    /// <param name="client">Client information (optional).</param>
-    /// <param name="returnUrl">URL to redirect after payment (optional).</param>
-    /// <param name="serviceUrl">Callback URL for server notifications (optional).</param>
-    /// <param name="language">Payment page language (optional).</param>
-    /// <param name="regular">Recurring payment settings (optional).</param>
-    /// <returns>Complete HTML string for the payment form.</returns>
     public string CreatePurchaseFormHtml(
         string orderReference,
         decimal amount,

@@ -6,25 +6,17 @@ using WayForPaySDK.Serialization;
 
 namespace WayForPaySDK.Http;
 
-/// <summary>
-/// HTTP client for WayForPay API communication.
-/// </summary>
 public sealed class WayForPayHttpClient : IWayForPayHttpClient
 {
     private readonly HttpClient _httpClient;
     private readonly JsonSerializerOptions _jsonOptions;
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="WayForPayHttpClient"/> class.
-    /// </summary>
-    /// <param name="httpClient">The configured HTTP client.</param>
     public WayForPayHttpClient(HttpClient httpClient)
     {
         _httpClient = httpClient;
         _jsonOptions = new JsonSerializerOptions(WayForPayJsonContext.Default.Options);
     }
 
-    /// <inheritdoc />
     public async Task<TResponse> PostAsync<TRequest, TResponse>(
         TRequest request,
         CancellationToken cancellationToken = default)
@@ -59,7 +51,6 @@ public sealed class WayForPayHttpClient : IWayForPayHttpClient
         }
     }
 
-    /// <inheritdoc />
     public async Task<TResponse> PostJsonAsync<TResponse>(
         string jsonContent,
         CancellationToken cancellationToken = default)

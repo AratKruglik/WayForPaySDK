@@ -7,15 +7,10 @@ using WayForPaySDK.Responses;
 
 namespace WayForPaySDK.Serialization;
 
-/// <summary>
-/// JSON serialization context for WayForPay SDK types.
-/// Uses source generation for AOT compatibility and improved performance.
-/// </summary>
 [JsonSourceGenerationOptions(
     PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase,
     DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
     WriteIndented = false)]
-// Domain models
 [JsonSerializable(typeof(Card))]
 [JsonSerializable(typeof(CardToken))]
 [JsonSerializable(typeof(Client))]
@@ -24,7 +19,6 @@ namespace WayForPaySDK.Serialization;
 [JsonSerializable(typeof(Reason))]
 [JsonSerializable(typeof(Regular))]
 [JsonSerializable(typeof(Transaction))]
-// Enums
 [JsonSerializable(typeof(TransactionStatus))]
 [JsonSerializable(typeof(PaymentSystem))]
 [JsonSerializable(typeof(Currency))]
@@ -33,7 +27,6 @@ namespace WayForPaySDK.Serialization;
 [JsonSerializable(typeof(RegularBehavior))]
 [JsonSerializable(typeof(RegularMode))]
 [JsonSerializable(typeof(RegularMode[]))]
-// Requests
 [JsonSerializable(typeof(ChargeRequest))]
 [JsonSerializable(typeof(RefundRequest))]
 [JsonSerializable(typeof(CheckStatusRequest))]
@@ -44,7 +37,6 @@ namespace WayForPaySDK.Serialization;
 [JsonSerializable(typeof(Complete3DSRequest))]
 [JsonSerializable(typeof(VerifyRequest))]
 [JsonSerializable(typeof(TransactionListRequest))]
-// Responses
 [JsonSerializable(typeof(ChargeResponse))]
 [JsonSerializable(typeof(RefundResponse))]
 [JsonSerializable(typeof(CheckStatusResponse))]
@@ -55,11 +47,9 @@ namespace WayForPaySDK.Serialization;
 [JsonSerializable(typeof(Complete3DSResponse))]
 [JsonSerializable(typeof(VerifyResponse))]
 [JsonSerializable(typeof(TransactionListResponse))]
-// Webhook types
 [JsonSerializable(typeof(WebhookPayload))]
 [JsonSerializable(typeof(WebhookResponse))]
 [JsonSerializable(typeof(WebhookStatus))]
-// Collections
 [JsonSerializable(typeof(Dictionary<string, object>))]
 [JsonSerializable(typeof(Dictionary<string, string>))]
 [JsonSerializable(typeof(string[]))]
