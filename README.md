@@ -193,7 +193,7 @@ public class WebhookController : ControllerBase
 For detailed documentation, see the [docs](./docs) folder:
 - [Product Requirements Document](./docs/PRD.md)
 - [Architecture Decision Records](./docs/adr)
-- [API Reference](https://wayforpay.com/en/api)
+- [API Reference](https://wiki.wayforpay.com/en/)
 
 ## Supported Operations
 
@@ -233,9 +233,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Support
 
-- GitHub Issues: [Report a bug](https://github.com/AratKruglik/WayForPaySDK/issues)
-- WayForPay Documentation: https://wayforpay.com/en/api
-- Questions? Open a [Discussion](https://github.com/AratKruglik/WayForPaySDK/discussions)
+- [GitHub Issues](https://github.com/AratKruglik/WayForPaySDK/issues) - Report bugs or request features
+- [WayForPay Documentation](https://wiki.wayforpay.com/en/) - Official API documentation
 
 ## Acknowledgments
 
