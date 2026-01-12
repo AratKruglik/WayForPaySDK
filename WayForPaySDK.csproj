@@ -20,7 +20,7 @@
         <RepositoryUrl>https://github.com/AratKruglik/WayForPaySDK</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
         <PackageReadmeFile>README.md</PackageReadmeFile>
-        <PackageReleaseNotes>Added support for P2P transfers (Card & IBAN) and Payment Systems configuration for Purchase/Invoice.</PackageReleaseNotes>
+        <PackageReleaseNotes>Added support for P2P transfers (Card &amp; IBAN) and Payment Systems configuration for Purchase/Invoice.</PackageReleaseNotes>
         <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
 
         <!-- Build settings -->
