@@ -92,6 +92,9 @@ public sealed class ChargeRequest : ApiRequest
     [JsonPropertyName("regularBehavior")]
     public string? RegularBehavior { get; set; }
 
+    [JsonPropertyName("splits")]
+    public IEnumerable<Split>? Splits { get; set; }
+
     public override IEnumerable<string> GetSignatureFields()
     {
         var fields = new List<string>
