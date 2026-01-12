@@ -8,7 +8,7 @@
 
         <!-- Package metadata -->
         <PackageId>WayForPaySDK</PackageId>
-        <Version>1.0.2</Version>
+        <Version>1.1.0</Version>
         <Authors>Oleksii Kruhlyk</Authors>
         <Company>KRUHLYK PRO</Company>
         <Product>WayForPay SDK</Product>
@@ -20,7 +20,7 @@
         <RepositoryUrl>https://github.com/AratKruglik/WayForPaySDK</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
         <PackageReadmeFile>README.md</PackageReadmeFile>
-        <PackageReleaseNotes>Initial release with full WayForPay API support. See CHANGELOG.md for details.</PackageReleaseNotes>
+        <PackageReleaseNotes>Added support for P2P transfers (Card & IBAN) and Payment Systems configuration for Purchase/Invoice.</PackageReleaseNotes>
         <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
 
         <!-- Build settings -->

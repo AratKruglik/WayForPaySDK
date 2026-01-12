@@ -60,6 +60,9 @@ public sealed class PurchaseRequest : ApiRequest
     [JsonPropertyName("merchantTransactionType")]
     public string? MerchantTransactionType { get; set; }
 
+    [JsonPropertyName("paymentSystems")]
+    public string? PaymentSystems { get; set; }
+
     [JsonPropertyName("regularAmount")]
     public decimal? RegularAmount { get; set; }
 

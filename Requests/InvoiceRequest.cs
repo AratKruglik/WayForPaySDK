@@ -54,6 +54,9 @@ public sealed class InvoiceRequest : ApiRequest
     [JsonPropertyName("orderLifetime")]
     public int? OrderLifetime { get; set; }
 
+    [JsonPropertyName("paymentSystems")]
+    public string? PaymentSystems { get; set; }
+
     public override IEnumerable<string> GetSignatureFields()
     {
         var fields = new List<string>
