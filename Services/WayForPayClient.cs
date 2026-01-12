@@ -492,6 +492,120 @@ public sealed class WayForPayClient : IWayForPayClient
         return await SendRequestAsync<PurchaseRequest, PurchaseResponse>(request, cancellationToken);
     }
 
+    public async Task<CreateQrResponse> CreateQrAsync(
+        string orderReference,
+        decimal amount,
+        string currency,
+        IEnumerable<Product> products,
+        string? serviceUrl = null,
+        CancellationToken cancellationToken = default)
+    {
+        var productList = products.ToList();
+
+        var request = new CreateQrRequest
+        {
+            MerchantAccount = _options.MerchantAccount,
+            MerchantDomainName = _options.MerchantDomainName,
+            MerchantSignature = string.Empty,
+            OrderReference = orderReference,
+            OrderDate = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+            Amount = amount,
+            Currency = currency.ToUpperInvariant(),
+            ProductName = productList.Select(p => p.Name).ToArray(),
+            ProductPrice = productList.Select(p => p.Price).ToArray(),
+            ProductCount = productList.Select(p => p.Count).ToArray(),
+            ServiceUrl = serviceUrl
+        };
+
+        request.MerchantSignature = _signatureGenerator.GenerateSignature(request.GetSignatureFields());
+
+        return await SendRequestAsync<CreateQrRequest, CreateQrResponse>(request, cancellationToken);
+    }
+
+    public async Task<RegularManagementResponse> SuspendRegularAsync(
+        string orderReference,
+        CancellationToken cancellationToken = default)
+    {
+        var request = new SuspendRegularRequest
+        {
+            MerchantAccount = _options.MerchantAccount,
+            MerchantPassword = _options.MerchantSecretKey,
+            OrderReference = orderReference
+        };
+
+        return await SendRegularRequestAsync<SuspendRegularRequest, RegularManagementResponse>(request, cancellationToken);
+    }
+
+    public async Task<RegularManagementResponse> ResumeRegularAsync(
+        string orderReference,
+        CancellationToken cancellationToken = default)
+    {
+        var request = new ResumeRegularRequest
+        {
+            MerchantAccount = _options.MerchantAccount,
+            MerchantPassword = _options.MerchantSecretKey,
+            OrderReference = orderReference
+        };
+
+        return await SendRegularRequestAsync<ResumeRegularRequest, RegularManagementResponse>(request, cancellationToken);
+    }
+
+    public async Task<RegularManagementResponse> RemoveRegularAsync(
+        string orderReference,
+        CancellationToken cancellationToken = default)
+    {
+        var request = new RemoveRegularRequest
+        {
+            MerchantAccount = _options.MerchantAccount,
+            MerchantPassword = _options.MerchantSecretKey,
+            OrderReference = orderReference
+        };
+
+        return await SendRegularRequestAsync<RemoveRegularRequest, RegularManagementResponse>(request, cancellationToken);
+    }
+
+    private async Task<TResponse> SendRegularRequestAsync<TRequest, TResponse>(
+        TRequest request,
+        CancellationToken cancellationToken)
+        where TRequest : RegularManagementRequest
+    {
+        try
+        {
+            var regularApiUrl = _options.ApiBaseUrl.Replace("/api", "/regularApi");
+            
+            var response = await _httpClient.PostAsJsonAsync(
+                regularApiUrl,
+                request,
+                _jsonOptions,
+                cancellationToken);
+
+            var content = await response.Content.ReadAsStringAsync(cancellationToken);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new ApiException(
+                    $"HTTP request failed with status {(int)response.StatusCode}: {content}");
+            }
+
+            var result = JsonSerializer.Deserialize<TResponse>(content, _jsonOptions);
+
+            if (result is null)
+            {
+                throw new JsonParseException("Response deserialized to null.", content);
+            }
+
+            return result;
+        }
+        catch (HttpRequestException ex)
+        {
+            throw new ApiException($"HTTP request failed: {ex.Message}", ex);
+        }
+        catch (JsonException ex)
+        {
+            throw new JsonParseException($"Failed to parse response: {ex.Message}", ex);
+        }
+    }
+
     private async Task<TResponse> SendRequestAsync<TRequest, TResponse>(
         TRequest request,
         CancellationToken cancellationToken)

@@ -183,4 +183,36 @@ public interface IWayForPayClient
         string? language = null,
         string? paymentSystems = null,
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Generates a QR code for payment.
+    /// </summary>
+    Task<CreateQrResponse> CreateQrAsync(
+        string orderReference,
+        decimal amount,
+        string currency,
+        IEnumerable<Product> products,
+        string? serviceUrl = null,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Suspends a regular payment.
+    /// </summary>
+    Task<RegularManagementResponse> SuspendRegularAsync(
+        string orderReference,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Resumes a regular payment.
+    /// </summary>
+    Task<RegularManagementResponse> ResumeRegularAsync(
+        string orderReference,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Removes a regular payment.
+    /// </summary>
+    Task<RegularManagementResponse> RemoveRegularAsync(
+        string orderReference,
+        CancellationToken cancellationToken = default);
 }

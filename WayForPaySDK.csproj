@@ -8,7 +8,7 @@
 
         <!-- Package metadata -->
         <PackageId>WayForPaySDK</PackageId>
-        <Version>1.1.0</Version>
+        <Version>1.2.0</Version>
         <Authors>Oleksii Kruhlyk</Authors>
         <Company>KRUHLYK PRO</Company>
         <Product>WayForPay SDK</Product>
@@ -20,7 +20,7 @@
         <RepositoryUrl>https://github.com/AratKruglik/WayForPaySDK</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
         <PackageReadmeFile>README.md</PackageReadmeFile>
-        <PackageReleaseNotes>Added support for P2P transfers (Card &amp; IBAN) and Payment Systems configuration for Purchase/Invoice.</PackageReleaseNotes>
+        <PackageReleaseNotes>Added support for Split Payments (Marketplace), QR Code generation, and Regular Payment management (Suspend/Resume/Remove).</PackageReleaseNotes>
         <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
 
         <!-- Build settings -->

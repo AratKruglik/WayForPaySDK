@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using WayForPaySDK.Domain;
 
 namespace WayForPaySDK.Requests;
 
@@ -77,6 +78,9 @@ public sealed class PurchaseRequest : ApiRequest
 
     [JsonPropertyName("regularBehavior")]
     public string? RegularBehavior { get; set; }
+
+    [JsonPropertyName("splits")]
+    public IEnumerable<Split>? Splits { get; set; }
 
     public override IEnumerable<string> GetSignatureFields()
     {
