@@ -25,14 +25,13 @@ public sealed class SignatureGenerator : ISignatureGenerator
         ArgumentNullException.ThrowIfNull(fields);
         ArgumentException.ThrowIfNullOrEmpty(secretKey);
 
-        // WayForPay signature format: MD5(fields;secret)
-        // NOT HMAC-MD5 - just simple MD5 with secret appended
-        var data = string.Join(Delimiter, fields) + Delimiter + secretKey;
+        var data = string.Join(Delimiter, fields);
+        var keyBytes = Encoding.UTF8.GetBytes(secretKey);
         var dataBytes = Encoding.UTF8.GetBytes(data);
 
-#pragma warning disable CA5351 // WayForPay API requires MD5
-        using var md5 = MD5.Create();
-        var hashBytes = md5.ComputeHash(dataBytes);
+#pragma warning disable CA5351 // WayForPay API requires HMACMD5
+        using var hmac = new HMACMD5(keyBytes);
+        var hashBytes = hmac.ComputeHash(dataBytes);
 #pragma warning restore CA5351
 
         return Convert.ToHexString(hashBytes).ToLowerInvariant();
