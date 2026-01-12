@@ -15,6 +15,9 @@ A modern .NET SDK for [WayForPay](https://wayforpay.com) payment gateway integra
 - Transaction status checks and verification
 - Invoice creation
 - 3D-Secure support
+- **QR Code generation**
+- **Split payments (Marketplace)**
+- **Regular payment management (Suspend/Resume/Remove)**
 
 **Developer Experience**
 - Async/await pattern throughout
@@ -98,7 +101,7 @@ public class PaymentService
 
 ## Usage Examples
 
-### Creating a Payment
+### Creating a Payment (Redirect)
 
 ```csharp
 var purchase = await _client.CreatePurchaseAsync(new PurchaseRequest
@@ -117,6 +120,26 @@ var purchase = await _client.CreatePurchaseAsync(new PurchaseRequest
 });
 ```
 
+### Direct Card Charge (S2S)
+
+```csharp
+var charge = await _client.ChargeAsync(new ChargeRequest
+{
+    OrderReference = $"ORDER-CHARGE-{DateTime.UtcNow.Ticks}",
+    Amount = 100.00m,
+    Currency = Currency.UAH,
+    OrderDate = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+    CardNumber = "4111111111111111",
+    ExpMonth = "12",
+    ExpYear = "2025",
+    CardCvv = "123",
+    CardHolder = "JOHN DOE",
+    ProductName = ["Direct Charge"],
+    ProductPrice = [100.00m],
+    ProductCount = [1]
+});
+```
+
 ### Charging with Token
 
 ```csharp
@@ -130,7 +153,105 @@ var charge = await _client.ChargeWithTokenAsync(new ChargeRequest
 });
 ```
 
-### Refunding a Transaction
+### Regular Payments (Subscriptions)
+
+```csharp
+// 1. Start a subscription via Purchase (Redirect)
+var regularPurchase = await _client.CreatePurchaseWithRegularAsync(new PurchaseRequest
+{
+    OrderReference = "SUB-START-1",
+    Amount = 100.00m,
+    Currency = Currency.UAH,
+    // ... products ...
+    RegularBehavior = RegularBehavior.Preset,
+    RegularMode = [RegularMode.Client], // Client can modify
+    RegularAmount = 100.00m,
+    RegularCount = 12, // 12 payments
+    RegularOn = "month" // Monthly
+});
+
+// 2. Charge next payment (S2S)
+var regularCharge = await _client.ChargeWithRegularAsync(new ChargeRequest
+{
+    OrderReference = "SUB-PAYMENT-2",
+    Amount = 100.00m,
+    // ... card details ...
+    RegularBehavior = RegularBehavior.None // Continue existing behavior
+});
+```
+
+### Managing Regular Payments
+
+```csharp
+// Suspend a subscription
+await _client.SuspendRegularAsync("ORDER-SUB-123");
+
+// Resume a subscription
+await _client.ResumeRegularAsync("ORDER-SUB-123");
+
+// Cancel/Remove a subscription permanently
+await _client.RemoveRegularAsync("ORDER-SUB-123");
+```
+
+### Split Payments (Marketplace)
+
+```csharp
+var purchaseWithSplit = await _client.CreatePurchaseAsync(new PurchaseRequest
+{
+    OrderReference = "ORDER-SPLIT-1",
+    Amount = 1000.00m,
+    Currency = Currency.UAH,
+    // ... other fields ...
+    Splits =
+    [
+        // Transfer 100 UAH to sub-merchant 1
+        new Split { Id = "merchant_id_1", Type = "flat", Value = "100" },
+        // Transfer 10% to sub-merchant 2
+        new Split { Id = "merchant_id_2", Type = "percentage", Value = "10" }
+    ]
+});
+```
+
+### Generating a Payment QR Code
+
+```csharp
+var qrResponse = await _client.CreateQrAsync(
+    orderReference: $"QR-{DateTime.UtcNow.Ticks}",
+    amount: 500.00m,
+    currency: Currency.UAH,
+    products: [new Product("Coffee", 500.00m, 1)]
+);
+
+// Use qrResponse.QrCodeUrl to display the QR code
+Console.WriteLine($"QR Code URL: {qrResponse.QrCodeUrl}");
+```
+
+### Two-Stage Payments (Auth/Settle/Void)
+
+```csharp
+// 1. Authorize (Hold funds)
+// Use MerchantTransactionType.Auth in your Purchase or Charge request
+
+// 2. Settle (Confirm/Capture)
+var settle = await _client.SettleAsync(new SettleRequest
+{
+    OrderReference = "ORDER-AUTH-1",
+    Amount = 100.00m, // Can be partial amount
+    Currency = Currency.UAH
+});
+
+// OR
+
+// 3. Void (Cancel Hold)
+var voidTx = await _client.VoidAsync(new VoidRequest
+{
+    OrderReference = "ORDER-AUTH-1",
+    Amount = 100.00m,
+    Currency = Currency.UAH
+});
+```
+
+### Refunds
 
 ```csharp
 var refund = await _client.RefundAsync(new RefundRequest
@@ -142,18 +263,89 @@ var refund = await _client.RefundAsync(new RefundRequest
 });
 ```
 
-### Checking Transaction Status
+### P2P Transfers
 
 ```csharp
+// Credit to Card
+var p2pCredit = await _client.P2PCreditAsync(new P2PCreditRequest
+{
+    OrderReference = $"P2P-{DateTime.UtcNow.Ticks}",
+    Amount = 1000.00m,
+    Currency = Currency.UAH,
+    CardBeneficiary = "4111111111111111" // Receiver card
+});
+
+// Transfer to IBAN
+var p2pAccount = await _client.P2PAccountAsync(new P2PAccountRequest
+{
+    OrderReference = $"IBAN-{DateTime.UtcNow.Ticks}",
+    Amount = 5000.00m,
+    Currency = Currency.UAH,
+    Iban = "UA12345678901234567890123456",
+    Okpo = "12345678",
+    AccountName = "Beneficiary Name",
+    Description = "Payment for services"
+});
+```
+
+### Transaction Info
+
+```csharp
+// Check single status
 var status = await _client.CheckStatusAsync(new StatusRequest
 {
     OrderReference = "ORDER-12345"
 });
 
-if (status.TransactionStatus == TransactionStatus.Approved)
+// Get list of transactions
+var history = await _client.GetTransactionListAsync(new TransactionListRequest
 {
-    // Payment successful
-}
+    DateBegin = DateTimeOffset.UtcNow.AddDays(-7).ToUnixTimeSeconds(),
+    DateEnd = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
+});
+```
+
+### Invoice Creation
+
+```csharp
+var invoice = await _client.CreateInvoiceAsync(new InvoiceRequest
+{
+    OrderReference = $"INV-{DateTime.UtcNow.Ticks}",
+    Amount = 1500.00m,
+    Currency = Currency.UAH,
+    ProductName = ["Consulting Services"],
+    ProductPrice = [1500.00m],
+    ProductCount = [1],
+    OrderLifetime = 86400 // 24 hours
+});
+
+Console.WriteLine($"Invoice URL: {invoice.InvoiceUrl}");
+```
+
+### Complete 3D Secure
+
+```csharp
+// When you receive 3DS callback (md, pares)
+var result = await _client.Complete3DSAsync(new Complete3DSRequest
+{
+    D3Md = "md_value_from_bank",
+    D3Pares = "pares_value_from_bank"
+});
+```
+
+### Verify Card
+
+```csharp
+var verification = await _client.VerifyAsync(new VerifyRequest
+{
+    OrderReference = $"VERIFY-{DateTime.UtcNow.Ticks}",
+    CardNumber = "4111111111111111",
+    ExpMonth = "12",
+    ExpYear = "2025",
+    CardCvv = "123",
+    CardHolder = "JOHN DOE"
+});
+// Creates a temporary hold (e.g. 1 UAH) which is auto-reversed
 ```
 
 ## Webhook Handling (ASP.NET Core)
@@ -209,6 +401,10 @@ For detailed documentation, see the [docs](./docs) folder:
 | Verify | `VerifyAsync` | Verify merchant signature |
 | Create Invoice | `CreateInvoiceAsync` | Create payment invoice |
 | Complete 3DS | `Complete3DSAsync` | Complete 3D-Secure |
+| Create QR | `CreateQrAsync` | Generate payment QR code |
+| Suspend Regular | `SuspendRegularAsync` | Suspend recurring payment |
+| Resume Regular | `ResumeRegularAsync` | Resume recurring payment |
+| Remove Regular | `RemoveRegularAsync` | Remove recurring payment |
 
 ## Requirements
 

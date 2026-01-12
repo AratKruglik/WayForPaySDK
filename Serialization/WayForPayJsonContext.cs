@@ -55,6 +55,19 @@ namespace WayForPaySDK.Serialization;
 [JsonSerializable(typeof(string[]))]
 [JsonSerializable(typeof(decimal[]))]
 [JsonSerializable(typeof(int[]))]
+[JsonSerializable(typeof(Split))]
+[JsonSerializable(typeof(Split[]))]
+[JsonSerializable(typeof(IEnumerable<Split>))]
+[JsonSerializable(typeof(CreateQrRequest))]
+[JsonSerializable(typeof(CreateQrResponse))]
+[JsonSerializable(typeof(SuspendRegularRequest))]
+[JsonSerializable(typeof(ResumeRegularRequest))]
+[JsonSerializable(typeof(RemoveRegularRequest))]
+[JsonSerializable(typeof(RegularManagementResponse))]
+[JsonSerializable(typeof(P2PAccountRequest))]
+[JsonSerializable(typeof(P2PCreditRequest))]
+[JsonSerializable(typeof(P2PAccountResponse))]
+[JsonSerializable(typeof(P2PCreditResponse))]
 public partial class WayForPayJsonContext : JsonSerializerContext
 {
 }
