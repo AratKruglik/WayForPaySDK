@@ -73,6 +73,29 @@ public interface IWayForPayClient
         CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Performs a P2P credit transfer to a beneficiary card.
+    /// </summary>
+    Task<P2PCreditResponse> P2PCreditAsync(
+        string orderReference,
+        decimal amount,
+        string currency,
+        string cardBeneficiary,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Performs a P2P transfer to a bank account (IBAN).
+    /// </summary>
+    Task<P2PAccountResponse> P2PAccountAsync(
+        string orderReference,
+        decimal amount,
+        string currency,
+        string iban,
+        string okpo,
+        string accountName,
+        string description,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Creates a purchase payment request (redirect flow).
     /// Returns a URL to redirect the client to for payment on WayForPay page.
     /// </summary>
@@ -85,6 +108,7 @@ public interface IWayForPayClient
         string? returnUrl = null,
         string? serviceUrl = null,
         string? language = null,
+        string? paymentSystems = null,
         CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -101,6 +125,7 @@ public interface IWayForPayClient
         string? serviceUrl = null,
         string? language = null,
         int? orderLifetime = null,
+        string? paymentSystems = null,
         CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -156,5 +181,6 @@ public interface IWayForPayClient
         string? returnUrl = null,
         string? serviceUrl = null,
         string? language = null,
+        string? paymentSystems = null,
         CancellationToken cancellationToken = default);
 }

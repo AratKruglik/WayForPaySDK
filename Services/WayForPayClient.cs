@@ -191,6 +191,56 @@ public sealed class WayForPayClient : IWayForPayClient
         return await SendRequestAsync<VoidRequest, VoidResponse>(request, cancellationToken);
     }
 
+    public async Task<P2PCreditResponse> P2PCreditAsync(
+        string orderReference,
+        decimal amount,
+        string currency,
+        string cardBeneficiary,
+        CancellationToken cancellationToken = default)
+    {
+        var request = new P2PCreditRequest
+        {
+            MerchantAccount = _options.MerchantAccount,
+            MerchantSignature = string.Empty,
+            OrderReference = orderReference,
+            Amount = amount,
+            Currency = currency.ToUpperInvariant(),
+            CardBeneficiary = cardBeneficiary
+        };
+
+        request.MerchantSignature = _signatureGenerator.GenerateSignature(request.GetSignatureFields());
+
+        return await SendRequestAsync<P2PCreditRequest, P2PCreditResponse>(request, cancellationToken);
+    }
+
+    public async Task<P2PAccountResponse> P2PAccountAsync(
+        string orderReference,
+        decimal amount,
+        string currency,
+        string iban,
+        string okpo,
+        string accountName,
+        string description,
+        CancellationToken cancellationToken = default)
+    {
+        var request = new P2PAccountRequest
+        {
+            MerchantAccount = _options.MerchantAccount,
+            MerchantSignature = string.Empty,
+            OrderReference = orderReference,
+            Amount = amount,
+            Currency = currency.ToUpperInvariant(),
+            Iban = iban,
+            Okpo = okpo,
+            AccountName = accountName,
+            Description = description
+        };
+
+        request.MerchantSignature = _signatureGenerator.GenerateSignature(request.GetSignatureFields());
+
+        return await SendRequestAsync<P2PAccountRequest, P2PAccountResponse>(request, cancellationToken);
+    }
+
     public async Task<PurchaseResponse> CreatePurchaseAsync(
         string orderReference,
         decimal amount,
@@ -200,6 +250,7 @@ public sealed class WayForPayClient : IWayForPayClient
         string? returnUrl = null,
         string? serviceUrl = null,
         string? language = null,
+        string? paymentSystems = null,
         CancellationToken cancellationToken = default)
     {
         var productList = products.ToList();
@@ -223,7 +274,8 @@ public sealed class WayForPayClient : IWayForPayClient
             ClientCountry = client?.Country,
             ReturnUrl = returnUrl,
             ServiceUrl = serviceUrl,
-            Language = language
+            Language = language,
+            PaymentSystems = paymentSystems
         };
 
         request.MerchantSignature = _signatureGenerator.GenerateSignature(request.GetSignatureFields());
@@ -241,6 +293,7 @@ public sealed class WayForPayClient : IWayForPayClient
         string? serviceUrl = null,
         string? language = null,
         int? orderLifetime = null,
+        string? paymentSystems = null,
         CancellationToken cancellationToken = default)
     {
         var productList = products.ToList();
@@ -264,7 +317,8 @@ public sealed class WayForPayClient : IWayForPayClient
             ReturnUrl = returnUrl,
             ServiceUrl = serviceUrl,
             Language = language,
-            OrderLifetime = orderLifetime
+            OrderLifetime = orderLifetime,
+            PaymentSystems = paymentSystems
         };
 
         request.MerchantSignature = _signatureGenerator.GenerateSignature(request.GetSignatureFields());
@@ -400,6 +454,7 @@ public sealed class WayForPayClient : IWayForPayClient
         string? returnUrl = null,
         string? serviceUrl = null,
         string? language = null,
+        string? paymentSystems = null,
         CancellationToken cancellationToken = default)
     {
         var productList = products.ToList();
@@ -428,7 +483,8 @@ public sealed class WayForPayClient : IWayForPayClient
             RegularMode = regular.Modes.Select(m => m.ToString().ToLowerInvariant()).ToArray(),
             RegularOn = regular.DateNext?.ToString("yyyy-MM-dd"),
             RegularCount = regular.Count,
-            RegularBehavior = regular.Behavior?.ToString().ToLowerInvariant()
+            RegularBehavior = regular.Behavior?.ToString().ToLowerInvariant(),
+            PaymentSystems = paymentSystems
         };
 
         request.MerchantSignature = _signatureGenerator.GenerateSignature(request.GetSignatureFields());
