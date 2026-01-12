@@ -100,6 +100,40 @@ public class WebhookHandlerTests
     }
 
     [Fact]
+    public void Parse_WithWayForPayDocumentationVector_ValidatesCorrectly()
+    {
+        // Arrange
+        // Vector from WayForPay documentation:
+        // Fields: test_merchant;DH783023;1547.36;UAH;541963;41****8217;Approved;1100
+        // Key: dhkq3vUi94{Z!5frxs(02ML
+        // Expected Signature (HMAC-MD5): 5e1a7a1494e9e65a904868b6a2c0dccb
+        
+        var secret = "dhkq3vUi94{Z!5frxs(02ML";
+        var signatureGenerator = new SignatureGenerator(TestOptions.CreateOptionsWithCustomSecret(secret));
+        var handler = new WebhookHandler(signatureGenerator);
+
+        var json = @"{
+            ""merchantAccount"": ""test_merchant"",
+            ""orderReference"": ""DH783023"",
+            ""merchantSignature"": ""5e1a7a1494e9e65a904868b6a2c0dccb"",
+            ""amount"": 1547.36,
+            ""currency"": ""UAH"",
+            ""authCode"": ""541963"",
+            ""cardPan"": ""41****8217"",
+            ""transactionStatus"": ""Approved"",
+            ""reasonCode"": 1100
+        }";
+
+        // Act
+        var result = handler.Parse(json);
+
+        // Assert
+        result.Should().NotBeNull();
+        result.MerchantAccount.Should().Be("test_merchant");
+        result.Amount.Should().Be(1547.36m);
+    }
+
+    [Fact]
     public void Parse_WithInvalidSignature_ThrowsSignatureException()
     {
         // Arrange

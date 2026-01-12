@@ -28,6 +28,25 @@ public class SignatureGeneratorTests
     }
 
     [Fact]
+    public void GenerateSignature_MatchesKnownVector()
+    {
+        // Arrange
+        // Vector verified via OpenSSL:
+        // echo -n "test_merch_n1;merchant.com.ua;VRF-PP-1445852171;0;UAH" | openssl dgst -md5 -hmac "flk3409refn54t54t*FNJret"
+        var secret = "flk3409refn54t54t*FNJret";
+        var fields = new[] { "test_merch_n1", "merchant.com.ua", "VRF-PP-1445852171", "0", "UAH" };
+        var expectedHash = "fdbfe295cd47a9c1b57dbd50a2febdf4";
+
+        var generator = new SignatureGenerator(TestOptions.CreateOptionsWithCustomSecret(secret));
+
+        // Act
+        var result = generator.GenerateSignature(fields);
+
+        // Assert
+        result.Should().Be(expectedHash);
+    }
+
+    [Fact]
     public void GenerateSignature_WithSameFieldsTwice_ReturnsSameHash()
     {
         // Arrange
