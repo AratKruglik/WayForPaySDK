@@ -115,6 +115,11 @@ public sealed class PaymentFormBuilder
     {
         var sb = new StringBuilder();
 
+        // HTML-encode all attributes to prevent XSS
+        var encodedFormId = System.Net.WebUtility.HtmlEncode(formData.FormId);
+        var encodedActionUrl = System.Net.WebUtility.HtmlEncode(formData.ActionUrl);
+        var encodedMethod = System.Net.WebUtility.HtmlEncode(formData.Method);
+
         sb.AppendLine("<!DOCTYPE html>");
         sb.AppendLine("<html>");
         sb.AppendLine("<head>");
@@ -122,12 +127,14 @@ public sealed class PaymentFormBuilder
         sb.AppendLine("    <title>Redirecting to payment...</title>");
         sb.AppendLine("</head>");
         sb.AppendLine("<body>");
-        sb.AppendLine($"    <form id=\"{formData.FormId}\" action=\"{formData.ActionUrl}\" method=\"{formData.Method}\">");
+        sb.AppendLine($"    <form id=\"{encodedFormId}\" action=\"{encodedActionUrl}\" method=\"{encodedMethod}\">");
 
         foreach (var field in formData.Fields)
         {
+            // Encode both key and value to prevent XSS via field names
+            var encodedKey = System.Net.WebUtility.HtmlEncode(field.Key);
             var encodedValue = System.Net.WebUtility.HtmlEncode(field.Value);
-            sb.AppendLine($"        <input type=\"hidden\" name=\"{field.Key}\" value=\"{encodedValue}\">");
+            sb.AppendLine($"        <input type=\"hidden\" name=\"{encodedKey}\" value=\"{encodedValue}\">");
         }
 
         sb.AppendLine("        <noscript>");
@@ -138,8 +145,10 @@ public sealed class PaymentFormBuilder
 
         if (formData.AutoSubmit)
         {
+            // Use JSON serialization to safely escape FormId for JavaScript context
+            var jsFormId = JsonSerializer.Serialize(formData.FormId);
             sb.AppendLine("    <script>");
-            sb.AppendLine($"        document.getElementById('{formData.FormId}').submit();");
+            sb.AppendLine($"        document.getElementById({jsFormId}).submit();");
             sb.AppendLine("    </script>");
         }
 

@@ -5,8 +5,15 @@ namespace WayForPaySDK.Exceptions;
 /// </summary>
 public sealed class SignatureException : WayForPayException
 {
-    public string? ExpectedSignature { get; }
-    public string? ActualSignature { get; }
+    /// <summary>
+    /// The expected signature value (internal to prevent information disclosure).
+    /// </summary>
+    internal string? ExpectedSignature { get; }
+
+    /// <summary>
+    /// The actual signature received (internal to prevent information disclosure).
+    /// </summary>
+    internal string? ActualSignature { get; }
 
     public SignatureException() : base("Signature validation failed.")
     {

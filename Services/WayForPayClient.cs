@@ -571,8 +571,8 @@ public sealed class WayForPayClient : IWayForPayClient
     {
         try
         {
-            var regularApiUrl = _options.ApiBaseUrl.Replace("/api", "/regularApi");
-            
+            var regularApiUrl = GetRegularApiUrl();
+
             var response = await _httpClient.PostAsJsonAsync(
                 regularApiUrl,
                 request,
@@ -583,15 +583,16 @@ public sealed class WayForPayClient : IWayForPayClient
 
             if (!response.IsSuccessStatusCode)
             {
+                // Don't include raw content in exception to prevent sensitive data exposure
                 throw new ApiException(
-                    $"HTTP request failed with status {(int)response.StatusCode}: {content}");
+                    $"HTTP request failed with status {(int)response.StatusCode}.");
             }
 
             var result = JsonSerializer.Deserialize<TResponse>(content, _jsonOptions);
 
             if (result is null)
             {
-                throw new JsonParseException("Response deserialized to null.", content);
+                throw new JsonParseException("Response deserialized to null.");
             }
 
             return result;
@@ -604,6 +605,27 @@ public sealed class WayForPayClient : IWayForPayClient
         {
             throw new JsonParseException($"Failed to parse response: {ex.Message}", ex);
         }
+    }
+
+    private Uri GetRegularApiUrl()
+    {
+        var baseUri = new Uri(_options.ApiBaseUrl);
+        var builder = new UriBuilder(baseUri);
+
+        if (builder.Path.EndsWith("/api", StringComparison.OrdinalIgnoreCase))
+        {
+            builder.Path = builder.Path[..^4] + "/regularApi";
+        }
+        else if (builder.Path.EndsWith("/api/", StringComparison.OrdinalIgnoreCase))
+        {
+            builder.Path = builder.Path[..^5] + "/regularApi/";
+        }
+        else
+        {
+            builder.Path = builder.Path.TrimEnd('/') + "/regularApi";
+        }
+
+        return builder.Uri;
     }
 
     private async Task<TResponse> SendRequestAsync<TRequest, TResponse>(
@@ -625,14 +647,14 @@ public sealed class WayForPayClient : IWayForPayClient
             if (!response.IsSuccessStatusCode)
             {
                 throw new ApiException(
-                    $"HTTP request failed with status {(int)response.StatusCode}: {content}");
+                    $"HTTP request failed with status {(int)response.StatusCode}");
             }
 
             var result = JsonSerializer.Deserialize<TResponse>(content, _jsonOptions);
 
             if (result is null)
             {
-                throw new JsonParseException("Response deserialized to null.", content);
+                throw new JsonParseException("Response deserialized to null.");
             }
 
             // Verify response signature

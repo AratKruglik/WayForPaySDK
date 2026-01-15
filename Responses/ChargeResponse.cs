@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text.Json.Serialization;
 using WayForPaySDK.Domain.Enums;
 
@@ -73,7 +74,7 @@ public sealed class ChargeResponse : ApiResponse
             AuthCode ?? string.Empty,
             CardPan ?? string.Empty,
             TransactionStatus ?? string.Empty,
-            ReasonCode.ToString()
+            ReasonCode.ToString(CultureInfo.InvariantCulture)
         };
     }
 }
