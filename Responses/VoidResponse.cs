@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text.Json.Serialization;
 
 namespace WayForPaySDK.Responses;
@@ -26,7 +27,7 @@ public sealed class VoidResponse : ApiResponse
             MerchantAccount ?? string.Empty,
             OrderReference ?? string.Empty,
             TransactionStatus ?? string.Empty,
-            ReasonCode.ToString()
+            ReasonCode.ToString(CultureInfo.InvariantCulture)
         };
     }
 }

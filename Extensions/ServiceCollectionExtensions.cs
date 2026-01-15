@@ -36,6 +36,7 @@ public static class ServiceCollectionExtensions
 
     private static IServiceCollection AddWayForPayCore(this IServiceCollection services)
     {
+        services.AddSingleton<IValidateOptions<WayForPayOptions>, WayForPayOptionsValidator>();
         services.AddSingleton<ISignatureGenerator, SignatureGenerator>();
 
         services.AddHttpClient<IWayForPayClient, WayForPayClient>((sp, client) =>
@@ -44,6 +45,19 @@ public static class ServiceCollectionExtensions
             client.BaseAddress = new Uri(options.ApiBaseUrl);
             client.Timeout = TimeSpan.FromSeconds(options.TimeoutSeconds);
             client.DefaultRequestHeaders.Add("Accept", "application/json");
+        })
+        .ConfigurePrimaryHttpMessageHandler(sp =>
+        {
+            var options = sp.GetRequiredService<IOptions<WayForPayOptions>>().Value;
+            var handler = new HttpClientHandler();
+
+            if (options.ServerCertificateCustomValidationCallback != null)
+            {
+                handler.ServerCertificateCustomValidationCallback =
+                    options.ServerCertificateCustomValidationCallback;
+            }
+
+            return handler;
         });
 
         services.AddScoped<IWebhookHandler, WebhookHandler>();
