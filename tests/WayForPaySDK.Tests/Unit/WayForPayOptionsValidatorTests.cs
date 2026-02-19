@@ -187,7 +187,6 @@ public class WayForPayOptionsValidatorTests
 
     [Theory]
     [InlineData("https://api.wayforpay.com/api")]
-    [InlineData("http://localhost:5000/api")]
     [InlineData("https://test.wayforpay.com/api")]
     public void Validate_WithValidApiBaseUrl_ReturnsSuccess(string apiUrl)
     {
@@ -197,6 +196,40 @@ public class WayForPayOptionsValidatorTests
             MerchantDomainName = "test.example.com",
             MerchantSecretKey = "secret_key_12345",
             ApiBaseUrl = apiUrl
+        };
+
+        var result = _sut.Validate(null, options);
+
+        result.Succeeded.Should().BeTrue();
+    }
+
+    [Fact]
+    public void Validate_WithHttpUrl_ReturnsFail()
+    {
+        var options = new WayForPayOptions
+        {
+            MerchantAccount = "test_merchant",
+            MerchantDomainName = "test.example.com",
+            MerchantSecretKey = "secret_key_12345",
+            ApiBaseUrl = "http://api.wayforpay.com/api"
+        };
+
+        var result = _sut.Validate(null, options);
+
+        result.Failed.Should().BeTrue();
+        result.FailureMessage.Should().Contain("insecure");
+    }
+
+    [Fact]
+    public void Validate_WithHttpUrl_AndAllowInsecureHttp_ReturnsSuccess()
+    {
+        var options = new WayForPayOptions
+        {
+            MerchantAccount = "test_merchant",
+            MerchantDomainName = "test.example.com",
+            MerchantSecretKey = "secret_key_12345",
+            ApiBaseUrl = "http://localhost:5000/api",
+            AllowInsecureHttp = true
         };
 
         var result = _sut.Validate(null, options);

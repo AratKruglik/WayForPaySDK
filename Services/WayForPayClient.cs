@@ -657,7 +657,6 @@ public sealed class WayForPayClient : IWayForPayClient
                 throw new JsonParseException("Response deserialized to null.");
             }
 
-            // Verify response signature
             if (!string.IsNullOrEmpty(result.MerchantSignature))
             {
                 var expectedSignature = _signatureGenerator.GenerateSignature(result.GetSignatureFields());
@@ -666,6 +665,11 @@ public sealed class WayForPayClient : IWayForPayClient
                 {
                     throw new SignatureException(expectedSignature, result.MerchantSignature);
                 }
+            }
+            else if (_options.RequireResponseSignature)
+            {
+                throw new SignatureException("API response is missing a signature. " +
+                    "Set RequireResponseSignature to false if this endpoint does not return signatures.");
             }
 
             return result;

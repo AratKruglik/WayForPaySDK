@@ -52,6 +52,18 @@ public sealed class WayForPayOptions
     public int TimeoutSeconds { get; set; } = 30;
 
     /// <summary>
+    /// When true (default), API responses without a signature will be rejected.
+    /// Set to false only if specific WayForPay endpoints are known to not return signatures.
+    /// </summary>
+    public bool RequireResponseSignature { get; set; } = true;
+
+    /// <summary>
+    /// When true, allows non-HTTPS API base URLs. Defaults to false.
+    /// Set to true only for local development with mock servers.
+    /// </summary>
+    public bool AllowInsecureHttp { get; set; }
+
+    /// <summary>
     /// Optional callback for custom server certificate validation.
     /// Use this for certificate pinning or custom validation logic.
     /// </summary>
