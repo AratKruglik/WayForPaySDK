@@ -8,7 +8,7 @@
 
         <!-- Package metadata -->
         <PackageId>WayForPaySDK</PackageId>
-        <Version>1.2.1</Version>
+        <Version>1.2.2</Version>
         <Authors>Oleksii Kruhlyk</Authors>
         <Company>KRUHLYK PRO</Company>
         <Product>WayForPay SDK</Product>
@@ -20,16 +20,19 @@
         <RepositoryUrl>https://github.com/AratKruglik/WayForPaySDK</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
         <PackageReadmeFile>README.md</PackageReadmeFile>
-        <PackageReleaseNotes>Security improvements and validation enhancements:
-• XSS prevention in PaymentFormBuilder (HTML encoding for all user-controlled values)
-• Signature exception properties now internal (prevents information disclosure)
-• Exception messages sanitized (no raw response data in errors)
-• Proper URL construction for Regular API endpoints
-• Added domain validation methods (Card, Client, Product) with Luhn algorithm for card numbers
-• Added options validation at startup (IValidateOptions pattern)
-• Added certificate pinning support via ServerCertificateCustomValidationCallback
-• Improved webhook error handling with optional ILogger support
-• InvariantCulture for ReasonCode formatting (consistent signatures across cultures)</PackageReleaseNotes>
+        <PackageReleaseNotes>v1.2.2 — Security, validation, and documentation:
+• RequireResponseSignature option (default: true) — fail-closed HMAC-MD5 response verification
+• AllowInsecureHttp option (default: false) — HTTPS-only enforcement at startup
+• Domain model validation (Card, Client, Product) with Validate/ValidateAndThrow/IsValid API
+• Card validation: Luhn algorithm, PAN length, expiry date, CVV format
+• ValidationException with structured Errors list
+• Certificate pinning via ServerCertificateCustomValidationCallback
+• XSS protection in PaymentFormBuilder (HTML and JSON encoding)
+• SignatureException properties changed to internal (prevents information leaks)
+• WayForPayOptionsValidator: required fields, HTTP rejection, timeout range validation
+• Webhook HandleAsync: 4 overloads with optional ILogger support
+• Comprehensive README with examples for all 18 API operations
+• 1,066 lines of new unit tests (Card, Client, Product, Options, FormBuilder security)</PackageReleaseNotes>
         <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
 
         <!-- Build settings -->
