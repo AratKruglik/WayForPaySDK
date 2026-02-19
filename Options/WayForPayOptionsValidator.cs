@@ -43,6 +43,10 @@ public sealed class WayForPayOptionsValidator : IValidateOptions<WayForPayOption
         {
             failures.Add("ApiBaseUrl must use HTTP or HTTPS protocol.");
         }
+        else if (uri.Scheme == "http" && !options.AllowInsecureHttp)
+        {
+            failures.Add("ApiBaseUrl uses HTTP which is insecure. Use HTTPS or set AllowInsecureHttp to true for local development.");
+        }
 
         return failures.Count > 0
             ? ValidateOptionsResult.Fail(failures)
