@@ -39,7 +39,19 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IValidateOptions<WayForPayOptions>, WayForPayOptionsValidator>();
         services.AddSingleton<ISignatureGenerator, SignatureGenerator>();
 
-        services.AddHttpClient<IWayForPayClient, WayForPayClient>((sp, client) =>
+        services.AddConfiguredHttpClient<IWayForPayClient, WayForPayClient>();
+        services.AddConfiguredHttpClient<IMmsClient, MmsClient>();
+
+        services.AddScoped<IWebhookHandler, WebhookHandler>();
+
+        return services;
+    }
+
+    private static void AddConfiguredHttpClient<TInterface, TImpl>(this IServiceCollection services)
+        where TInterface : class
+        where TImpl : class, TInterface
+    {
+        services.AddHttpClient<TInterface, TImpl>((sp, client) =>
         {
             var options = sp.GetRequiredService<IOptions<WayForPayOptions>>().Value;
             client.BaseAddress = new Uri(options.ApiBaseUrl);
@@ -59,9 +71,5 @@ public static class ServiceCollectionExtensions
 
             return handler;
         });
-
-        services.AddScoped<IWebhookHandler, WebhookHandler>();
-
-        return services;
     }
 }

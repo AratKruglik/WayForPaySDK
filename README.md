@@ -17,6 +17,7 @@ A modern .NET SDK for [WayForPay](https://wayforpay.com) payment gateway integra
 - 3D-Secure support
 - QR Code generation
 - Split payments (Marketplace)
+- MMS Marketplace management (partners, merchants, balances)
 - Regular payment management (Suspend/Resume/Remove)
 - P2P transfers (card-to-card and IBAN)
 
@@ -87,7 +88,7 @@ builder.Services.AddWayForPay(options =>
 });
 ```
 
-This registers `IWayForPayClient`, `IWebhookHandler`, `ISignatureGenerator`, and configures an `HttpClient` with the appropriate base address, timeout, and headers.
+This registers `IWayForPayClient`, `IMmsClient`, `IWebhookHandler`, `ISignatureGenerator`, and configures `HttpClient` instances with the appropriate base address, timeout, and headers.
 
 ### 3. Basic Usage
 
@@ -530,6 +531,110 @@ var remove = await _client.RemoveRegularAsync("ORDER-SUB-123");
 if (remove.IsSuccess) Console.WriteLine("Subscription removed");
 ```
 
+### MMS Marketplace API
+
+MMS (Merchant Management System) operations are available through a separate `IMmsClient` interface. All 6 operations use the `/mms/{operation}.php` endpoint and HMAC-MD5 signatures.
+
+#### Register a Partner
+
+```csharp
+public class MarketplaceService
+{
+    private readonly IMmsClient _mms;
+
+    public MarketplaceService(IMmsClient mms)
+    {
+        _mms = mms;
+    }
+
+    public async Task<AddPartnerResponse> RegisterPartnerAsync()
+    {
+        var response = await _mms.AddPartnerAsync(
+            partnerCode: "seller-001",
+            site: "https://seller.example.com",
+            phone: "+380501234567",
+            email: "seller@example.com",
+            description: "Electronics seller",
+            compensationAccountIban: "UA213223130000026007233566001",
+            compensationAccountOkpo: "12345678",
+            compensationAccountName: "FOP Petrenko I.V.");
+
+        if (response.IsSuccess)
+            Console.WriteLine($"Partner registered: {response.PartnerCode}");
+
+        return response;
+    }
+}
+```
+
+#### Get Partner Info
+
+```csharp
+var info = await _mms.GetPartnerInfoAsync("seller-001");
+
+if (info.IsSuccess)
+{
+    Console.WriteLine($"Partner: {info.PartnerCode}");
+    Console.WriteLine($"Status: {info.PartnerStatus}");
+    Console.WriteLine($"Compensation: {info.Compensation}");
+    Console.WriteLine($"Created: {info.CreateDate}");
+}
+```
+
+#### Update Partner
+
+```csharp
+var result = await _mms.UpdatePartnerAsync(
+    partnerCode: "seller-001",
+    email: "new-email@example.com",
+    compensationAccountIban: "UA999999999999999999999999999");
+
+if (result.IsSuccess)
+    Console.WriteLine($"Updated. New secret key: {result.SecretKey}");
+```
+
+#### Create a Merchant
+
+```csharp
+var response = await _mms.AddMerchantAsync(
+    site: "https://shop.example.com",
+    phone: "+380501234567",
+    email: "shop@example.com",
+    description: "Online electronics shop",
+    compensationCardToken: "card_token_from_wayforpay");
+
+if (response.IsSuccess)
+{
+    Console.WriteLine($"Merchant account: {response.MerchantAccount}");
+    Console.WriteLine($"Secret key: {response.SecretKey}");
+}
+```
+
+#### Get Merchant Info
+
+```csharp
+var info = await _mms.GetMerchantInfoAsync();
+
+if (info.IsSuccess)
+{
+    Console.WriteLine($"Merchant: {info.MerchantAccount}");
+    Console.WriteLine($"Site: {info.Site}");
+    Console.WriteLine($"Status: {info.Status}");
+}
+```
+
+#### Get Merchant Balance
+
+```csharp
+var balance = await _mms.GetMerchantBalanceAsync();
+
+if (balance.IsSuccess)
+    Console.WriteLine($"Balance: {balance.BalanceUah} UAH");
+
+// With date filter
+var balanceOnDate = await _mms.GetMerchantBalanceAsync(toDate: "01.03.2026");
+```
+
 ## Payment Form Builder
 
 `PaymentFormBuilder` generates HTML forms that auto-submit to WayForPay's secure payment page. It requires manual DI registration:
@@ -948,6 +1053,13 @@ bool needs3ds = ReasonCodes.IsWaiting3Ds(response.ReasonCode);
 | Suspend Regular | `SuspendRegularAsync` | Pause recurring payment |
 | Resume Regular | `ResumeRegularAsync` | Resume recurring payment |
 | Remove Regular | `RemoveRegularAsync` | Cancel recurring payment |
+| **MMS Marketplace** | **`IMmsClient`** | |
+| Add Partner | `AddPartnerAsync` | Register a marketplace partner |
+| Partner Info | `GetPartnerInfoAsync` | Get partner details and status |
+| Update Partner | `UpdatePartnerAsync` | Update partner data |
+| Add Merchant | `AddMerchantAsync` | Create a new merchant |
+| Merchant Info | `GetMerchantInfoAsync` | Get merchant details and status |
+| Merchant Balance | `GetMerchantBalanceAsync` | Get merchant UAH balance |
 
 ## Requirements
 
@@ -959,6 +1071,8 @@ bool needs3ds = ReasonCodes.IsWaiting3Ds(response.ReasonCode);
 ## Documentation
 
 For detailed documentation, see the [docs](./docs) folder:
+- [API Overview](./docs/api-overview.md)
+- [Marketplace (MMS) API](./docs/marketplace/overview.md)
 - [Product Requirements Document](./docs/PRD.md)
 - [Architecture Decision Records](./docs/adr)
 - [API Reference](https://wiki.wayforpay.com/en/)

@@ -8,3 +8,6 @@ riderModule.iml
 *.snupkg
 nupkg/
 nuget.config
+docs
+.claude
+CLAUDE.md
