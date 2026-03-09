@@ -3,6 +3,7 @@ using System.Text.Json;
 using Microsoft.Extensions.Options;
 using WayForPaySDK.Crypto;
 using WayForPaySDK.Exceptions;
+using WayForPaySDK.Http;
 using WayForPaySDK.Options;
 using WayForPaySDK.Requests;
 using WayForPaySDK.Responses;
@@ -218,7 +219,8 @@ public sealed class MmsClient : IMmsClient
     {
         try
         {
-            var mmsApiUrl = GetMmsApiUrl(request.MmsOperation);
+            var mmsApiUrl = ApiUrlBuilder.BuildAlternateUrl(
+                _options.ApiBaseUrl, $"/mms/{request.MmsOperation}.php");
 
             var response = await _httpClient.PostAsJsonAsync(
                 mmsApiUrl,
@@ -253,24 +255,4 @@ public sealed class MmsClient : IMmsClient
         }
     }
 
-    private Uri GetMmsApiUrl(string operation)
-    {
-        var baseUri = new Uri(_options.ApiBaseUrl);
-        var builder = new UriBuilder(baseUri);
-
-        if (builder.Path.EndsWith("/api", StringComparison.OrdinalIgnoreCase))
-        {
-            builder.Path = builder.Path[..^4] + $"/mms/{operation}.php";
-        }
-        else if (builder.Path.EndsWith("/api/", StringComparison.OrdinalIgnoreCase))
-        {
-            builder.Path = builder.Path[..^5] + $"/mms/{operation}.php";
-        }
-        else
-        {
-            builder.Path = builder.Path.TrimEnd('/') + $"/mms/{operation}.php";
-        }
-
-        return builder.Uri;
-    }
 }

@@ -8,7 +8,7 @@
 
         <!-- Package metadata -->
         <PackageId>WayForPaySDK</PackageId>
-        <Version>1.2.2</Version>
+        <Version>1.3.0</Version>
         <Authors>Oleksii Kruhlyk</Authors>
         <Company>KRUHLYK PRO</Company>
         <Product>WayForPay SDK</Product>

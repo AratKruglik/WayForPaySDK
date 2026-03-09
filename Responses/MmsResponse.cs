@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using WayForPaySDK.Constants;
 
 namespace WayForPaySDK.Responses;
 
@@ -11,5 +12,5 @@ public abstract class MmsResponse
     public required string ReasonMessage { get; init; }
 
     [JsonIgnore]
-    public bool IsSuccess => ReasonCode == 1100;
+    public bool IsSuccess => ReasonCode == ReasonCodes.Ok;
 }

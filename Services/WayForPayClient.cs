@@ -4,6 +4,7 @@ using Microsoft.Extensions.Options;
 using WayForPaySDK.Crypto;
 using WayForPaySDK.Domain;
 using WayForPaySDK.Exceptions;
+using WayForPaySDK.Http;
 using WayForPaySDK.Options;
 using WayForPaySDK.Requests;
 using WayForPaySDK.Responses;
@@ -571,7 +572,7 @@ public sealed class WayForPayClient : IWayForPayClient
     {
         try
         {
-            var regularApiUrl = GetRegularApiUrl();
+            var regularApiUrl = ApiUrlBuilder.BuildAlternateUrl(_options.ApiBaseUrl, "/regularApi");
 
             var response = await _httpClient.PostAsJsonAsync(
                 regularApiUrl,
@@ -607,26 +608,6 @@ public sealed class WayForPayClient : IWayForPayClient
         }
     }
 
-    private Uri GetRegularApiUrl()
-    {
-        var baseUri = new Uri(_options.ApiBaseUrl);
-        var builder = new UriBuilder(baseUri);
-
-        if (builder.Path.EndsWith("/api", StringComparison.OrdinalIgnoreCase))
-        {
-            builder.Path = builder.Path[..^4] + "/regularApi";
-        }
-        else if (builder.Path.EndsWith("/api/", StringComparison.OrdinalIgnoreCase))
-        {
-            builder.Path = builder.Path[..^5] + "/regularApi/";
-        }
-        else
-        {
-            builder.Path = builder.Path.TrimEnd('/') + "/regularApi";
-        }
-
-        return builder.Uri;
-    }
 
     private async Task<TResponse> SendRequestAsync<TRequest, TResponse>(
         TRequest request,
