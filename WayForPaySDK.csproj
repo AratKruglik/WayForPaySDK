@@ -20,19 +20,17 @@
         <RepositoryUrl>https://github.com/AratKruglik/WayForPaySDK</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
         <PackageReadmeFile>README.md</PackageReadmeFile>
-        <PackageReleaseNotes>v1.2.2 — Security, validation, and documentation:
-• RequireResponseSignature option (default: true) — fail-closed HMAC-MD5 response verification
-• AllowInsecureHttp option (default: false) — HTTPS-only enforcement at startup
-• Domain model validation (Card, Client, Product) with Validate/ValidateAndThrow/IsValid API
-• Card validation: Luhn algorithm, PAN length, expiry date, CVV format
-• ValidationException with structured Errors list
-• Certificate pinning via ServerCertificateCustomValidationCallback
-• XSS protection in PaymentFormBuilder (HTML and JSON encoding)
-• SignatureException properties changed to internal (prevents information leaks)
-• WayForPayOptionsValidator: required fields, HTTP rejection, timeout range validation
-• Webhook HandleAsync: 4 overloads with optional ILogger support
-• Comprehensive README with examples for all 18 API operations
-• 1,066 lines of new unit tests (Card, Client, Product, Options, FormBuilder security)</PackageReleaseNotes>
+        <PackageReleaseNotes>v1.3.0 — MMS Marketplace API:
+• New IMmsClient interface with 6 MMS operations (addPartner, partnerInfo, updatePartner, addMerchant, merchantInfo, merchantBalance)
+• Separate MmsClient for /mms/{operation}.php endpoints with HMAC-MD5 signatures
+• Partner management: register, query info, update contacts and compensation details
+• Merchant management: create merchants, query info, check UAH balance
+• Compensation support: card (number/token) and IBAN (account/MFO/OKPO)
+• Automatic DI registration via AddWayForPay() — registers both IWayForPayClient and IMmsClient
+• Base classes: MmsRequest, MmsResponse, CompensatedMmsRequest
+• Internal: ApiUrlBuilder shared utility, extracted HttpClient DI helper
+• Source-generated JSON for all 12 new request/response types
+• 33 new unit tests (requests, responses, client integration with WireMock)</PackageReleaseNotes>
         <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
 
         <!-- Build settings -->
