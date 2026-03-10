@@ -1,5 +1,3 @@
-using WayForPaySDK.Exceptions;
-
 namespace WayForPaySDK.Domain;
 
 /// <summary>
@@ -12,7 +10,7 @@ namespace WayForPaySDK.Domain;
 /// Consider using tokenization (RecToken) for recurring payments instead.
 /// </para>
 /// </remarks>
-public sealed record Card
+public sealed record Card : IValidatable
 {
     /// <summary>
     /// The card number (PAN). Must be 13-19 digits.
@@ -102,22 +100,8 @@ public sealed record Card
         return errors;
     }
 
-    /// <summary>
-    /// Validates the card data and throws if invalid.
-    /// </summary>
-    /// <exception cref="ValidationException">Thrown when validation fails.</exception>
-    public void ValidateAndThrow()
-    {
-        var errors = Validate();
-        if (errors.Count > 0)
-        {
-            throw new ValidationException("Card validation failed.", errors);
-        }
-    }
+    public void ValidateAndThrow() => ValidationHelper.ValidateAndThrow(this);
 
-    /// <summary>
-    /// Returns whether the card data passes all validation checks.
-    /// </summary>
     public bool IsValid => Validate().Count == 0;
 
     /// <summary>

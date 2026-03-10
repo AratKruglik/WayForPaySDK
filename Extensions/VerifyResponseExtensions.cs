@@ -9,11 +9,6 @@ public static class VerifyResponseExtensions
         return !string.IsNullOrEmpty(response.Url);
     }
 
-    public static string? Get3DSRedirectUrl(this VerifyResponse response)
-    {
-        return response.Url;
-    }
-
     public static bool HasRecToken(this VerifyResponse response)
     {
         return response.IsSuccess && !string.IsNullOrEmpty(response.RecToken);

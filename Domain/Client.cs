@@ -1,13 +1,12 @@
 using System.Net;
 using System.Text.RegularExpressions;
-using WayForPaySDK.Exceptions;
 
 namespace WayForPaySDK.Domain;
 
 /// <summary>
 /// Represents client (customer) information for payment transactions.
 /// </summary>
-public sealed partial record Client
+public sealed partial record Client : IValidatable
 {
     public string? Id { get; init; }
     public string? FirstName { get; init; }
@@ -86,14 +85,7 @@ public sealed partial record Client
         return errors;
     }
 
-    public void ValidateAndThrow()
-    {
-        var errors = Validate();
-        if (errors.Count > 0)
-        {
-            throw new ValidationException("Client validation failed.", errors);
-        }
-    }
+    public void ValidateAndThrow() => ValidationHelper.ValidateAndThrow(this);
 
     public bool IsValid => Validate().Count == 0;
 

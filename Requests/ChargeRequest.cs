@@ -1,6 +1,5 @@
 using System.Text.Json.Serialization;
 using WayForPaySDK.Domain;
-using WayForPaySDK.Domain.Enums;
 
 namespace WayForPaySDK.Requests;
 
@@ -95,22 +94,7 @@ public sealed class ChargeRequest : ApiRequest
     [JsonPropertyName("splits")]
     public IEnumerable<Split>? Splits { get; set; }
 
-    public override IEnumerable<string> GetSignatureFields()
-    {
-        var fields = new List<string>
-        {
-            MerchantAccount,
-            MerchantDomainName,
-            OrderReference,
-            OrderDate.ToString(),
-            Amount.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture),
-            Currency
-        };
-
-        fields.AddRange(ProductName);
-        fields.AddRange(ProductCount.Select(c => c.ToString()));
-        fields.AddRange(ProductPrice.Select(p => p.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)));
-
-        return fields;
-    }
+    public override IEnumerable<string> GetSignatureFields() =>
+        BuildProductSignatureFields(MerchantAccount, MerchantDomainName, OrderReference,
+            OrderDate, Amount, Currency, ProductName, ProductCount, ProductPrice);
 }

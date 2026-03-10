@@ -1,8 +1,6 @@
-using System.Net.Http.Json;
 using System.Text.Json;
 using Microsoft.Extensions.Options;
 using WayForPaySDK.Crypto;
-using WayForPaySDK.Exceptions;
 using WayForPaySDK.Http;
 using WayForPaySDK.Options;
 using WayForPaySDK.Requests;
@@ -70,7 +68,7 @@ public sealed class MmsClient : IMmsClient
             CompensationAccountName = compensationAccountName
         };
 
-        request.MerchantSignature = _signatureGenerator.GenerateSignature(request.GetSignatureFields());
+        SignRequest(request);
 
         return await SendMmsRequestAsync<AddPartnerRequest, AddPartnerResponse>(request, cancellationToken);
     }
@@ -86,7 +84,7 @@ public sealed class MmsClient : IMmsClient
             PartnerCode = partnerCode
         };
 
-        request.MerchantSignature = _signatureGenerator.GenerateSignature(request.GetSignatureFields());
+        SignRequest(request);
 
         return await SendMmsRequestAsync<PartnerInfoRequest, PartnerInfoResponse>(request, cancellationToken);
     }
@@ -132,7 +130,7 @@ public sealed class MmsClient : IMmsClient
             CompensationAccountName = compensationAccountName
         };
 
-        request.MerchantSignature = _signatureGenerator.GenerateSignature(request.GetSignatureFields());
+        SignRequest(request);
 
         return await SendMmsRequestAsync<UpdatePartnerRequest, UpdatePartnerResponse>(request, cancellationToken);
     }
@@ -176,7 +174,7 @@ public sealed class MmsClient : IMmsClient
             CompensationAccountName = compensationAccountName
         };
 
-        request.MerchantSignature = _signatureGenerator.GenerateSignature(request.GetSignatureFields());
+        SignRequest(request);
 
         return await SendMmsRequestAsync<AddMerchantRequest, AddMerchantResponse>(request, cancellationToken);
     }
@@ -190,7 +188,7 @@ public sealed class MmsClient : IMmsClient
             MerchantSignature = string.Empty
         };
 
-        request.MerchantSignature = _signatureGenerator.GenerateSignature(request.GetSignatureFields());
+        SignRequest(request);
 
         return await SendMmsRequestAsync<MerchantInfoRequest, MerchantInfoResponse>(request, cancellationToken);
     }
@@ -206,9 +204,14 @@ public sealed class MmsClient : IMmsClient
             ToDate = toDate
         };
 
-        request.MerchantSignature = _signatureGenerator.GenerateSignature(request.GetSignatureFields());
+        SignRequest(request);
 
         return await SendMmsRequestAsync<MerchantBalanceRequest, MerchantBalanceResponse>(request, cancellationToken);
+    }
+
+    private void SignRequest(MmsRequest request)
+    {
+        request.MerchantSignature = _signatureGenerator.GenerateSignature(request.GetSignatureFields());
     }
 
     private async Task<TResponse> SendMmsRequestAsync<TRequest, TResponse>(
@@ -217,42 +220,10 @@ public sealed class MmsClient : IMmsClient
         where TRequest : MmsRequest
         where TResponse : MmsResponse
     {
-        try
-        {
-            var mmsApiUrl = ApiUrlBuilder.BuildAlternateUrl(
-                _options.ApiBaseUrl, $"/mms/{request.MmsOperation}.php");
+        var mmsApiUrl = ApiUrlBuilder.BuildAlternateUrl(
+            _options.ApiBaseUrl, $"/mms/{request.MmsOperation}.php");
 
-            var response = await _httpClient.PostAsJsonAsync(
-                mmsApiUrl,
-                request,
-                _jsonOptions,
-                cancellationToken);
-
-            var content = await response.Content.ReadAsStringAsync(cancellationToken);
-
-            if (!response.IsSuccessStatusCode)
-            {
-                throw new ApiException(
-                    $"HTTP request failed with status {(int)response.StatusCode}.");
-            }
-
-            var result = JsonSerializer.Deserialize<TResponse>(content, _jsonOptions);
-
-            if (result is null)
-            {
-                throw new JsonParseException("Response deserialized to null.");
-            }
-
-            return result;
-        }
-        catch (HttpRequestException ex)
-        {
-            throw new ApiException($"HTTP request failed: {ex.Message}", ex);
-        }
-        catch (JsonException ex)
-        {
-            throw new JsonParseException($"Failed to parse response: {ex.Message}", ex);
-        }
+        return await ApiRequestSender.SendAsync<TRequest, TResponse>(
+            _httpClient, mmsApiUrl, request, _jsonOptions, cancellationToken);
     }
-
 }

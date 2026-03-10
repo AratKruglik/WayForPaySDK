@@ -1,11 +1,9 @@
-using WayForPaySDK.Exceptions;
-
 namespace WayForPaySDK.Domain;
 
 /// <summary>
 /// Represents a product in a payment transaction.
 /// </summary>
-public sealed record Product
+public sealed record Product : IValidatable
 {
     /// <summary>
     /// The product name. Required and must not be empty.
@@ -52,14 +50,7 @@ public sealed record Product
         return errors;
     }
 
-    public void ValidateAndThrow()
-    {
-        var errors = Validate();
-        if (errors.Count > 0)
-        {
-            throw new ValidationException("Product validation failed.", errors);
-        }
-    }
+    public void ValidateAndThrow() => ValidationHelper.ValidateAndThrow(this);
 
     public bool IsValid => Validate().Count == 0;
 }

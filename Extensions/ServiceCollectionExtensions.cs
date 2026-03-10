@@ -2,7 +2,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using WayForPaySDK.Crypto;
 using WayForPaySDK.Handlers;
-using WayForPaySDK.Http;
 using WayForPaySDK.Options;
 using WayForPaySDK.Services;
 

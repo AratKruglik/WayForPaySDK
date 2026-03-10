@@ -1,4 +1,3 @@
-using System.Net.Http.Json;
 using System.Text.Json;
 using Microsoft.Extensions.Options;
 using WayForPaySDK.Crypto;
@@ -40,13 +39,13 @@ public sealed class WayForPayClient : IWayForPayClient
         string? serviceUrl = null,
         CancellationToken cancellationToken = default)
     {
-        var productList = products.ToList();
+        var (names, prices, counts) = ExtractProducts(products);
 
         var request = new ChargeRequest
         {
             MerchantAccount = _options.MerchantAccount,
             MerchantDomainName = _options.MerchantDomainName,
-            MerchantSignature = string.Empty, // Will be set below
+            MerchantSignature = string.Empty,
             OrderReference = orderReference,
             OrderDate = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
             Amount = amount,
@@ -56,9 +55,9 @@ public sealed class WayForPayClient : IWayForPayClient
             ExpYear = card.ExpireYear.ToString(),
             CardCvv = card.Cvv,
             CardHolder = card.Holder,
-            ProductName = productList.Select(p => p.Name).ToArray(),
-            ProductPrice = productList.Select(p => p.Price).ToArray(),
-            ProductCount = productList.Select(p => p.Count).ToArray(),
+            ProductName = names,
+            ProductPrice = prices,
+            ProductCount = counts,
             ClientFirstName = client?.FirstName,
             ClientLastName = client?.LastName,
             ClientEmail = client?.Email,
@@ -68,7 +67,7 @@ public sealed class WayForPayClient : IWayForPayClient
             ServiceUrl = serviceUrl
         };
 
-        request.MerchantSignature = _signatureGenerator.GenerateSignature(request.GetSignatureFields());
+        SignRequest(request);
 
         return await SendRequestAsync<ChargeRequest, ChargeResponse>(request, cancellationToken);
     }
@@ -83,7 +82,7 @@ public sealed class WayForPayClient : IWayForPayClient
         string? serviceUrl = null,
         CancellationToken cancellationToken = default)
     {
-        var productList = products.ToList();
+        var (names, prices, counts) = ExtractProducts(products);
 
         var request = new ChargeRequest
         {
@@ -95,9 +94,9 @@ public sealed class WayForPayClient : IWayForPayClient
             Amount = amount,
             Currency = currency.ToUpperInvariant(),
             RecToken = recToken,
-            ProductName = productList.Select(p => p.Name).ToArray(),
-            ProductPrice = productList.Select(p => p.Price).ToArray(),
-            ProductCount = productList.Select(p => p.Count).ToArray(),
+            ProductName = names,
+            ProductPrice = prices,
+            ProductCount = counts,
             ClientFirstName = client?.FirstName,
             ClientLastName = client?.LastName,
             ClientEmail = client?.Email,
@@ -107,7 +106,7 @@ public sealed class WayForPayClient : IWayForPayClient
             ServiceUrl = serviceUrl
         };
 
-        request.MerchantSignature = _signatureGenerator.GenerateSignature(request.GetSignatureFields());
+        SignRequest(request);
 
         return await SendRequestAsync<ChargeRequest, ChargeResponse>(request, cancellationToken);
     }
@@ -129,7 +128,7 @@ public sealed class WayForPayClient : IWayForPayClient
             Comment = comment
         };
 
-        request.MerchantSignature = _signatureGenerator.GenerateSignature(request.GetSignatureFields());
+        SignRequest(request);
 
         return await SendRequestAsync<RefundRequest, RefundResponse>(request, cancellationToken);
     }
@@ -145,7 +144,7 @@ public sealed class WayForPayClient : IWayForPayClient
             OrderReference = orderReference
         };
 
-        request.MerchantSignature = _signatureGenerator.GenerateSignature(request.GetSignatureFields());
+        SignRequest(request);
 
         return await SendRequestAsync<CheckStatusRequest, CheckStatusResponse>(request, cancellationToken);
     }
@@ -165,7 +164,7 @@ public sealed class WayForPayClient : IWayForPayClient
             Currency = currency.ToUpperInvariant()
         };
 
-        request.MerchantSignature = _signatureGenerator.GenerateSignature(request.GetSignatureFields());
+        SignRequest(request);
 
         return await SendRequestAsync<SettleRequest, SettleResponse>(request, cancellationToken);
     }
@@ -187,7 +186,7 @@ public sealed class WayForPayClient : IWayForPayClient
             Comment = comment
         };
 
-        request.MerchantSignature = _signatureGenerator.GenerateSignature(request.GetSignatureFields());
+        SignRequest(request);
 
         return await SendRequestAsync<VoidRequest, VoidResponse>(request, cancellationToken);
     }
@@ -209,7 +208,7 @@ public sealed class WayForPayClient : IWayForPayClient
             CardBeneficiary = cardBeneficiary
         };
 
-        request.MerchantSignature = _signatureGenerator.GenerateSignature(request.GetSignatureFields());
+        SignRequest(request);
 
         return await SendRequestAsync<P2PCreditRequest, P2PCreditResponse>(request, cancellationToken);
     }
@@ -237,7 +236,7 @@ public sealed class WayForPayClient : IWayForPayClient
             Description = description
         };
 
-        request.MerchantSignature = _signatureGenerator.GenerateSignature(request.GetSignatureFields());
+        SignRequest(request);
 
         return await SendRequestAsync<P2PAccountRequest, P2PAccountResponse>(request, cancellationToken);
     }
@@ -254,7 +253,7 @@ public sealed class WayForPayClient : IWayForPayClient
         string? paymentSystems = null,
         CancellationToken cancellationToken = default)
     {
-        var productList = products.ToList();
+        var (names, prices, counts) = ExtractProducts(products);
 
         var request = new PurchaseRequest
         {
@@ -265,9 +264,9 @@ public sealed class WayForPayClient : IWayForPayClient
             OrderDate = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
             Amount = amount,
             Currency = currency.ToUpperInvariant(),
-            ProductName = productList.Select(p => p.Name).ToArray(),
-            ProductPrice = productList.Select(p => p.Price).ToArray(),
-            ProductCount = productList.Select(p => p.Count).ToArray(),
+            ProductName = names,
+            ProductPrice = prices,
+            ProductCount = counts,
             ClientFirstName = client?.FirstName,
             ClientLastName = client?.LastName,
             ClientEmail = client?.Email,
@@ -279,7 +278,7 @@ public sealed class WayForPayClient : IWayForPayClient
             PaymentSystems = paymentSystems
         };
 
-        request.MerchantSignature = _signatureGenerator.GenerateSignature(request.GetSignatureFields());
+        SignRequest(request);
 
         return await SendRequestAsync<PurchaseRequest, PurchaseResponse>(request, cancellationToken);
     }
@@ -297,7 +296,7 @@ public sealed class WayForPayClient : IWayForPayClient
         string? paymentSystems = null,
         CancellationToken cancellationToken = default)
     {
-        var productList = products.ToList();
+        var (names, prices, counts) = ExtractProducts(products);
 
         var request = new InvoiceRequest
         {
@@ -308,9 +307,9 @@ public sealed class WayForPayClient : IWayForPayClient
             OrderDate = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
             Amount = amount,
             Currency = currency.ToUpperInvariant(),
-            ProductName = productList.Select(p => p.Name).ToArray(),
-            ProductPrice = productList.Select(p => p.Price).ToArray(),
-            ProductCount = productList.Select(p => p.Count).ToArray(),
+            ProductName = names,
+            ProductPrice = prices,
+            ProductCount = counts,
             ClientFirstName = client?.FirstName,
             ClientLastName = client?.LastName,
             ClientEmail = client?.Email,
@@ -322,7 +321,7 @@ public sealed class WayForPayClient : IWayForPayClient
             PaymentSystems = paymentSystems
         };
 
-        request.MerchantSignature = _signatureGenerator.GenerateSignature(request.GetSignatureFields());
+        SignRequest(request);
 
         return await SendRequestAsync<InvoiceRequest, InvoiceResponse>(request, cancellationToken);
     }
@@ -341,7 +340,7 @@ public sealed class WayForPayClient : IWayForPayClient
             D3Pares = d3Pares
         };
 
-        request.MerchantSignature = _signatureGenerator.GenerateSignature(request.GetSignatureFields());
+        SignRequest(request);
 
         return await SendRequestAsync<Complete3DSRequest, Complete3DSResponse>(request, cancellationToken);
     }
@@ -372,7 +371,7 @@ public sealed class WayForPayClient : IWayForPayClient
             ClientIpAddress = client?.IpAddress
         };
 
-        request.MerchantSignature = _signatureGenerator.GenerateSignature(request.GetSignatureFields());
+        SignRequest(request);
 
         return await SendRequestAsync<VerifyRequest, VerifyResponse>(request, cancellationToken);
     }
@@ -391,7 +390,7 @@ public sealed class WayForPayClient : IWayForPayClient
             DateEnd = dateEnd.ToUnixTimeSeconds()
         };
 
-        request.MerchantSignature = _signatureGenerator.GenerateSignature(request.GetSignatureFields());
+        SignRequest(request);
 
         return await SendRequestAsync<TransactionListRequest, TransactionListResponse>(request, cancellationToken);
     }
@@ -407,7 +406,7 @@ public sealed class WayForPayClient : IWayForPayClient
         string? serviceUrl = null,
         CancellationToken cancellationToken = default)
     {
-        var productList = products.ToList();
+        var (names, prices, counts) = ExtractProducts(products);
 
         var request = new ChargeRequest
         {
@@ -423,9 +422,9 @@ public sealed class WayForPayClient : IWayForPayClient
             ExpYear = card.ExpireYear.ToString(),
             CardCvv = card.Cvv,
             CardHolder = card.Holder,
-            ProductName = productList.Select(p => p.Name).ToArray(),
-            ProductPrice = productList.Select(p => p.Price).ToArray(),
-            ProductCount = productList.Select(p => p.Count).ToArray(),
+            ProductName = names,
+            ProductPrice = prices,
+            ProductCount = counts,
             ClientFirstName = client?.FirstName,
             ClientLastName = client?.LastName,
             ClientEmail = client?.Email,
@@ -440,7 +439,7 @@ public sealed class WayForPayClient : IWayForPayClient
             RegularBehavior = regular.Behavior?.ToString().ToLowerInvariant()
         };
 
-        request.MerchantSignature = _signatureGenerator.GenerateSignature(request.GetSignatureFields());
+        SignRequest(request);
 
         return await SendRequestAsync<ChargeRequest, ChargeResponse>(request, cancellationToken);
     }
@@ -458,7 +457,7 @@ public sealed class WayForPayClient : IWayForPayClient
         string? paymentSystems = null,
         CancellationToken cancellationToken = default)
     {
-        var productList = products.ToList();
+        var (names, prices, counts) = ExtractProducts(products);
 
         var request = new PurchaseRequest
         {
@@ -469,9 +468,9 @@ public sealed class WayForPayClient : IWayForPayClient
             OrderDate = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
             Amount = amount,
             Currency = currency.ToUpperInvariant(),
-            ProductName = productList.Select(p => p.Name).ToArray(),
-            ProductPrice = productList.Select(p => p.Price).ToArray(),
-            ProductCount = productList.Select(p => p.Count).ToArray(),
+            ProductName = names,
+            ProductPrice = prices,
+            ProductCount = counts,
             ClientFirstName = client?.FirstName,
             ClientLastName = client?.LastName,
             ClientEmail = client?.Email,
@@ -488,7 +487,7 @@ public sealed class WayForPayClient : IWayForPayClient
             PaymentSystems = paymentSystems
         };
 
-        request.MerchantSignature = _signatureGenerator.GenerateSignature(request.GetSignatureFields());
+        SignRequest(request);
 
         return await SendRequestAsync<PurchaseRequest, PurchaseResponse>(request, cancellationToken);
     }
@@ -501,7 +500,7 @@ public sealed class WayForPayClient : IWayForPayClient
         string? serviceUrl = null,
         CancellationToken cancellationToken = default)
     {
-        var productList = products.ToList();
+        var (names, prices, counts) = ExtractProducts(products);
 
         var request = new CreateQrRequest
         {
@@ -512,13 +511,13 @@ public sealed class WayForPayClient : IWayForPayClient
             OrderDate = DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
             Amount = amount,
             Currency = currency.ToUpperInvariant(),
-            ProductName = productList.Select(p => p.Name).ToArray(),
-            ProductPrice = productList.Select(p => p.Price).ToArray(),
-            ProductCount = productList.Select(p => p.Count).ToArray(),
+            ProductName = names,
+            ProductPrice = prices,
+            ProductCount = counts,
             ServiceUrl = serviceUrl
         };
 
-        request.MerchantSignature = _signatureGenerator.GenerateSignature(request.GetSignatureFields());
+        SignRequest(request);
 
         return await SendRequestAsync<CreateQrRequest, CreateQrResponse>(request, cancellationToken);
     }
@@ -565,49 +564,32 @@ public sealed class WayForPayClient : IWayForPayClient
         return await SendRegularRequestAsync<RemoveRegularRequest, RegularManagementResponse>(request, cancellationToken);
     }
 
+    private static (string[] Names, decimal[] Prices, int[] Counts) ExtractProducts(
+        IEnumerable<Product> products)
+    {
+        var productList = products.ToList();
+        return (
+            productList.Select(p => p.Name).ToArray(),
+            productList.Select(p => p.Price).ToArray(),
+            productList.Select(p => p.Count).ToArray()
+        );
+    }
+
+    private void SignRequest(ApiRequest request)
+    {
+        request.MerchantSignature = _signatureGenerator.GenerateSignature(request.GetSignatureFields());
+    }
+
     private async Task<TResponse> SendRegularRequestAsync<TRequest, TResponse>(
         TRequest request,
         CancellationToken cancellationToken)
         where TRequest : RegularManagementRequest
+        where TResponse : class
     {
-        try
-        {
-            var regularApiUrl = ApiUrlBuilder.BuildAlternateUrl(_options.ApiBaseUrl, "/regularApi");
-
-            var response = await _httpClient.PostAsJsonAsync(
-                regularApiUrl,
-                request,
-                _jsonOptions,
-                cancellationToken);
-
-            var content = await response.Content.ReadAsStringAsync(cancellationToken);
-
-            if (!response.IsSuccessStatusCode)
-            {
-                // Don't include raw content in exception to prevent sensitive data exposure
-                throw new ApiException(
-                    $"HTTP request failed with status {(int)response.StatusCode}.");
-            }
-
-            var result = JsonSerializer.Deserialize<TResponse>(content, _jsonOptions);
-
-            if (result is null)
-            {
-                throw new JsonParseException("Response deserialized to null.");
-            }
-
-            return result;
-        }
-        catch (HttpRequestException ex)
-        {
-            throw new ApiException($"HTTP request failed: {ex.Message}", ex);
-        }
-        catch (JsonException ex)
-        {
-            throw new JsonParseException($"Failed to parse response: {ex.Message}", ex);
-        }
+        var regularApiUrl = ApiUrlBuilder.BuildAlternateUrl(_options.ApiBaseUrl, "/regularApi");
+        return await ApiRequestSender.SendAsync<TRequest, TResponse>(
+            _httpClient, regularApiUrl, request, _jsonOptions, cancellationToken);
     }
-
 
     private async Task<TResponse> SendRequestAsync<TRequest, TResponse>(
         TRequest request,
@@ -615,53 +597,24 @@ public sealed class WayForPayClient : IWayForPayClient
         where TRequest : ApiRequest
         where TResponse : ApiResponse
     {
-        try
+        var result = await ApiRequestSender.SendAsync<TRequest, TResponse>(
+            _httpClient, null, request, _jsonOptions, cancellationToken);
+
+        if (!string.IsNullOrEmpty(result.MerchantSignature))
         {
-            var response = await _httpClient.PostAsJsonAsync(
-                string.Empty,
-                request,
-                _jsonOptions,
-                cancellationToken);
+            var expectedSignature = _signatureGenerator.GenerateSignature(result.GetSignatureFields());
 
-            var content = await response.Content.ReadAsStringAsync(cancellationToken);
-
-            if (!response.IsSuccessStatusCode)
+            if (!_signatureGenerator.VerifySignature(expectedSignature, result.MerchantSignature))
             {
-                throw new ApiException(
-                    $"HTTP request failed with status {(int)response.StatusCode}");
+                throw new SignatureException(expectedSignature, result.MerchantSignature);
             }
-
-            var result = JsonSerializer.Deserialize<TResponse>(content, _jsonOptions);
-
-            if (result is null)
-            {
-                throw new JsonParseException("Response deserialized to null.");
-            }
-
-            if (!string.IsNullOrEmpty(result.MerchantSignature))
-            {
-                var expectedSignature = _signatureGenerator.GenerateSignature(result.GetSignatureFields());
-
-                if (!_signatureGenerator.VerifySignature(expectedSignature, result.MerchantSignature))
-                {
-                    throw new SignatureException(expectedSignature, result.MerchantSignature);
-                }
-            }
-            else if (_options.RequireResponseSignature)
-            {
-                throw new SignatureException("API response is missing a signature. " +
-                    "Set RequireResponseSignature to false if this endpoint does not return signatures.");
-            }
-
-            return result;
         }
-        catch (HttpRequestException ex)
+        else if (_options.RequireResponseSignature)
         {
-            throw new ApiException($"HTTP request failed: {ex.Message}", ex);
+            throw new SignatureException("API response is missing a signature. " +
+                "Set RequireResponseSignature to false if this endpoint does not return signatures.");
         }
-        catch (JsonException ex)
-        {
-            throw new JsonParseException($"Failed to parse response: {ex.Message}", ex);
-        }
+
+        return result;
     }
 }
