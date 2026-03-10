@@ -8,7 +8,7 @@
 
         <!-- Package metadata -->
         <PackageId>WayForPaySDK</PackageId>
-        <Version>1.3.0</Version>
+        <Version>1.3.1</Version>
         <Authors>Oleksii Kruhlyk</Authors>
         <Company>KRUHLYK PRO</Company>
         <Product>WayForPay SDK</Product>
@@ -20,17 +20,15 @@
         <RepositoryUrl>https://github.com/AratKruglik/WayForPaySDK</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
         <PackageReadmeFile>README.md</PackageReadmeFile>
-        <PackageReleaseNotes>v1.3.0 — MMS Marketplace API:
-• New IMmsClient interface with 6 MMS operations (addPartner, partnerInfo, updatePartner, addMerchant, merchantInfo, merchantBalance)
-• Separate MmsClient for /mms/{operation}.php endpoints with HMAC-MD5 signatures
-• Partner management: register, query info, update contacts and compensation details
-• Merchant management: create merchants, query info, check UAH balance
-• Compensation support: card (number/token) and IBAN (account/MFO/OKPO)
-• Automatic DI registration via AddWayForPay() — registers both IWayForPayClient and IMmsClient
-• Base classes: MmsRequest, MmsResponse, CompensatedMmsRequest
-• Internal: ApiUrlBuilder shared utility, extracted HttpClient DI helper
-• Source-generated JSON for all 12 new request/response types
-• 33 new unit tests (requests, responses, client integration with WireMock)</PackageReleaseNotes>
+        <PackageReleaseNotes>v1.3.1 — Internal simplification:
+• Removed unused IWayForPayHttpClient and WayForPayHttpClient
+• Unified HTTP send logic into internal ApiRequestSender
+• Extracted BuildProductSignatureFields helper in ApiRequest base class
+• Introduced SimpleTransactionResponse base for RefundResponse, SettleResponse, VoidResponse
+• Added IValidatable interface and ValidationHelper for domain model validation
+• Extracted SignRequest and ExtractProducts helpers in client classes
+• Removed pass-through extension methods (Get3DSRedirectUrl, Get3DSMd, Get3DSPaReq)
+• No functional or public API changes (except removed pass-through extensions)</PackageReleaseNotes>
         <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
 
         <!-- Build settings -->
